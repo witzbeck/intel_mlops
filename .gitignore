@@ -23,6 +23,12 @@ mlflow/
 *.joblib
 *.pkl
 
+
+# Models & Runs
+mlruns/
+*.joblib
+*.pkl
+
 # Python
 __pycache__/
 *.py[cod]
