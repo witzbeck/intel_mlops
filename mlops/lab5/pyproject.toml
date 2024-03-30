@@ -8,10 +8,10 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 numpy = "*"
-torch = "*"
-torchvision = "*"
-intel-extension-for-pytorch = "*"
-oneccl_bind_pt = "*"
+torch = {version = "*", source = "pytorch"}
+torchvision = {version = "*", source = "pytorch"}
+intel-extension-for-pytorch = {version = "*", source = "ipex"}
+oneccl_bind_pt = {version = "*", source = "ipex"}
 pandas = "^2.2.1"
 
 [build-system]
@@ -21,9 +21,9 @@ build-backend = "poetry.core.masonry.api"
 [[tool.poetry.source]]
 name = "pytorch"
 url = "https://download.pytorch.org/whl/cpu"
-priority = "supplemental"
+priority = "explicit"
 
 [[tool.poetry.source]]
-name = "intel-pytorch-extension"
+name = "ipex"
 url = "https://pytorch-extension.intel.com/release-whl/stable/cpu/us/"
-priority = "supplemental"
+priority = "explicit"
