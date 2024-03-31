@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "labtools"
+name = "mlo-lab5"
 version = "0.1.0"
-description = "tools developed during the completion of mlops pro labs to enhance the learning experience"
+description = ""
 authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-
+python = "*"
+torch = "*"
 
 [build-system]
 requires = ["poetry-core"]
