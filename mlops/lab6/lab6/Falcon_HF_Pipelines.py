@@ -1,4 +1,5 @@
 from pathlib import Path
+from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import transformers
 import torch
@@ -13,7 +14,7 @@ import time
 
 def main(FLAGS):
     
-    model = transformers.Gem(transformers.FalconConfig(version="7b", ))
+    model = transformers.FalconForCausalLM(transformers.FalconConfig(version="7b"))
     
     
     tokenizer = AutoTokenizer.from_pretrained(model, cache_dir=cache_dir, use_fast=True)
@@ -23,7 +24,7 @@ def main(FLAGS):
         "text-generation",
         model=model,
         tokenizer=tokenizer,
-        torch_dtype=torch.float16,
+        torch_dtype=torch.float,
         device_map="auto",
     )
 
