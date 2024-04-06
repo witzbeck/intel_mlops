@@ -1,8 +1,9 @@
-from logging import basicConfig, debug, INFO
-from os import environ, getenv
+from logging import basicConfig, debug
+from os import environ
 from pathlib import Path
 from sys import path
 
+import logging
 
 debug(here := Path(__file__).parent)
 # Add parent directory to path
@@ -24,10 +25,4 @@ for key, value in pairs:
     else:
         debug(f"{key} already set to {environ[key]}")
 
-
-MODEL_NAME = getenv("MODEL")
-TOKEN = getenv("HF_TOKEN")
-MAX_NEW_TOKENS = int(getenv("MAX_NEW_TOKENS"))
-TOP_K = int(getenv("TOP_K"))
-
-basicConfig(level=INFO)
+basicConfig(level=getattr(logging, environ.get("LOG_LEVEL", "INFO")))

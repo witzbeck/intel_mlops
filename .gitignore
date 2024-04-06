@@ -1,5 +1,6 @@
 
 # Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 .DS*
 
 # envs
@@ -11,6 +12,11 @@ venv/
 
 # Logs
 *.log
+
+# envs
+env/
+venv/
+.[Ee][Nn][Vv]
 
 # data
 data.txt
