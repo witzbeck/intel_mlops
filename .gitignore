@@ -16,6 +16,7 @@ venv/
 # envs
 env/
 venv/
+.venv/*
 .[Ee][Nn][Vv]
 
 # data
