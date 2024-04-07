@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow
+    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts --host 0.0.0.0
+    volumes:
+      - ./mlflow:/mlflow
+      - ./data:/data
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+  
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./mlflow:/mlflow
+      - ./data:/data
+    ports:
+      - "8000:80"
+    depends_on:
+      - mlflow
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000

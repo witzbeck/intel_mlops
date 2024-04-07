@@ -1,5 +1,23 @@
 
+# Byte-compiled / optimized / DLL files
 .DS*
+
+# envs
+env/
+venv/
+.venv/*
+.[Ee][Nn][Vv]
+
+# data
+datasets/
+cache/
+
+# Models & Runs
+mlruns/
+mlflow/
+*.joblib
+*.pkl
+
 # Python
 __pycache__/
 *.py[cod]
