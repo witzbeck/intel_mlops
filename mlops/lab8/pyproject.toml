@@ -5,10 +5,9 @@ description = ""
 authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
+alexlib = {git = "http://github.com/witzbeck/alexlib.git", branch = "main"}
 langchain="*"
-pygpt4all="*"
-gpt4all="*"
 transformers="*"
 datasets="*"
 tiktoken="*"
