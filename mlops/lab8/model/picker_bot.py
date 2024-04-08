@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from functools import partial
+from os import getenv
 from pathlib import Path
 from time import time
 
-from pandas import DataFrame
-
+from attr import field
 from langchain_core.vectorstores import VectorStore
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
@@ -12,6 +13,24 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.embeddings import HuggingFaceEmbeddings
 from datasets import load_dataset
+from pandas import DataFrame
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+
+MODEL_NAME = getenv("MODEL_NAME")
+TOKEN = getenv("HF_TOKEN")
+
+load_model = partial(AutoModelForCausalLM, MODEL_NAME, token=TOKEN)
+load_tokenizer = partial(AutoTokenizer, MODEL_NAME, token=TOKEN)
+
+
+
+
+
+@dataclass(slots=True)
+class MaintainenceBot:
+    model: AutoModelForCausalLM = field(default_factory=load_model)
+    tokenizer: AutoTokenizer = field(default_factory=load_tokenizer)
 
 
 @dataclass(slots=True)
