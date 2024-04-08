@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "app"
+version = "0.2.0"
+description = ""
+authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langchain="*"
+pygpt4all="*"
+gpt4all="*"
+transformers="*"
+datasets="*"
+tiktoken="*"
+chromadb="*"
+sentence_transformers="*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "supplemental"
