@@ -1,3 +1,4 @@
+from logging import debug
 from os import getenv
 from pathlib import Path
 
@@ -30,7 +31,7 @@ def load_gpt4allj(
         url = getenv("MODEL_URL")
         # send a GET request to the URL to download the file. Stream since it's large
         response = get(url, stream=True)
-
+        model_path.parent.mkdir(parents=True, exist_ok=True)
         # open the file in binary mode and write the contents of the response to it in chunks
         # This is a large file, so be prepared to wait.
         with open(model_path, "wb") as f:
@@ -38,9 +39,9 @@ def load_gpt4allj(
                 if chunk:
                     f.write(chunk)
     elif not model_path.exists():
-        print("model does not exist in path.")
+        raise FileNotFoundError("model does not exist in path.")
     else:
-        print("model already exists in path.")
+        debug("model already exists in path.")
 
     # Callbacks support token-wise streaming
     callbacks = [StreamingStdOutCallbackHandler()]
@@ -60,7 +61,7 @@ def load_gpt4allj(
 
 
 gptj = load_gpt4allj(
-    model_path="./models/pickerbot/ggml-model-gpt4all-falcon-q4_0.bin",
+    model_path=getenv("MODEL_PATH"),
     n_threads=15,
     max_tokens=100,
     repeat_penalty=1.20,
