@@ -9,12 +9,12 @@
 			"name": "tools"
 		},
 		{
-			"path": "mlops/lab7",
+			"path": "mlops/lab8",
 			"name": "lab"
 		}
 	],
 	"settings": {
-		"editor.defaultFormatter": "GitHub.copilot",
+		"editor.defaultFormatter": "charliermarsh.ruff",
 		"git.openRepositoryInParentFolders": "always",
 		"git.enableSmartCommit": true,
 		"git.confirmSync": false,
@@ -24,7 +24,6 @@
 		"python.analysis.autoFormatStrings": true,
 		"python.analysis.autoSearchPaths": true,
 		"python.analysis.autoImportCompletions": true,
-		"python.defaultInterpreterPath": "./.venv/bin/python",
 		"python.testing.pytestEnabled": true,
 		"python.testing.pytestPath": "poetry run pytest",
 		"python.testing.unittestEnabled": false,
