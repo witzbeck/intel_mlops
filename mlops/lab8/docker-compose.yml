@@ -10,7 +10,5 @@ services:
       - ./model:/app/model
     ports:
       - "80:80"
-    environment:
-      - log_level=DEBUG
-      - MODEL_URL=https://huggingface.co/nomic-ai/gpt4all-falcon-ggml/resolve/main/ggml-model-gpt4all-falcon-q4_0.bin
-      - MODEL_PATH=../model/models/pickerbot/ggml-model-gpt4all-falcon-q4_0.bin
+    env_file:
+      - .env
