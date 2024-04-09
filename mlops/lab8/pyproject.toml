@@ -13,6 +13,7 @@ datasets="*"
 tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
+langchain-google-genai = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
