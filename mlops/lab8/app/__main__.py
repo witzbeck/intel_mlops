@@ -27,7 +27,7 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"No valid arguments passed | {parser.print_help()}")
 
-    if args.generate or response.status_code == 200:
+    if response.status_code == 200:
         print(f"{request_type} request was successful\n{response.json()}")
     else:
         print(f"{request_type} request failed")

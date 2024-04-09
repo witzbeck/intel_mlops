@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-url_base = "http://localhost:8000"
+url_base = "http://localhost:80"
 headers = {"Content-Type": "application/json"}
 
 
