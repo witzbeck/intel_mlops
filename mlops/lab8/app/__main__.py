@@ -3,12 +3,11 @@ from json import dumps
 
 from requests import get, post
 
-from app.__init__ import URL_BASE
-from app.main import PredictionPayload, headers
+from model.data_model import GenPayload, headers, url_base
 
 
 if __name__ == "__main__":
-    print("URL_BASE: ", URL_BASE)
+    print("URL_BASE: ", url_base)
     parser = ArgumentParser()
     parser.add_argument("--ping", action="store_true", help="Ping the server")
     parser.add_argument(
@@ -17,13 +16,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.ping:
         request_type = "ping"
-        response = get(f"{URL_BASE}/ping")
+        response = get(f"{url_base}/ping")
     elif args.predict:
         print(f"headers: {headers}")
         request_type = "prediction"
-        print(f"sending {PredictionPayload}")
+        print(f"sending {GenPayload}")
         response = post(
-            f"{URL_BASE}/predict", headers=headers, data=dumps(PredictionPayload)
+            f"{url_base}/predict", headers=headers, data=dumps(GenPayload)
         )
     else:
         raise ValueError(f"No valid arguments passed | {parser.print_help()}")
