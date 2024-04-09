@@ -22,9 +22,7 @@ if __name__ == "__main__":
         print(f"headers: {headers}")
         request_type = "prediction"
         print(f"sending {GenPayload}")
-        response = post(
-            f"{url_base}/predict", headers=headers, data=dumps(GenPayload)
-        )
+        response = post(f"{url_base}/predict", headers=headers, data=dumps(GenPayload))
     else:
         raise ValueError(f"No valid arguments passed | {parser.print_help()}")
 
