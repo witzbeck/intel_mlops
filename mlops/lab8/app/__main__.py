@@ -13,6 +13,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--predict", action="store_true", help="Predict using the model"
     )
+    parser.add_argument("prompt", nargs="?", help="Prompt to send to the model")
     args = parser.parse_args()
     if args.ping:
         request_type = "ping"
@@ -21,9 +22,7 @@ if __name__ == "__main__":
         print(f"headers: {headers}")
         request_type = "prediction"
         print(f"sending {GenPayload}")
-        response = post(
-            f"{url_base}/predict", headers=headers, data=dumps(GenPayload)
-        )
+        response = post(f"{url_base}/predict", headers=headers, data=dumps(GenPayload))
     else:
         raise ValueError(f"No valid arguments passed | {parser.print_help()}")
 

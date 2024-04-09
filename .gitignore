@@ -3,12 +3,17 @@
 .DS*
 
 # envs
+.env
 env/
 venv/
 .venv/*
 .[Ee][Nn][Vv]
 
+# Logs
+*.log
+
 # data
+data.txt
 datasets/
 cache/
 
