@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from functools import partial
+from logging import info, warning
 from os import getenv
 from pathlib import Path
 from time import time
@@ -15,92 +16,113 @@ from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
 from pandas import DataFrame
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
+from alexlib.files.config import DotEnv
+from model.data_model import TEMPLATE_BASE
+
+here = Path(__file__).parent
+DotEnv.from_path(here.parent / ".env")
 
 DATASET_NAME = "FunDialogues/customer-service-apple-picker-maintenance"
-MODEL_NAME = getenv("MODEL_NAME")
+DATASET_PATH = here / "models/pickerbot" / "data.txt"
+MODEL_NAME = getenv("HF_MODEL")
 TOKEN = getenv("HF_TOKEN")
 
-load_model = partial(AutoModelForCausalLM, MODEL_NAME, token=TOKEN)
-load_tokenizer = partial(AutoTokenizer, MODEL_NAME, token=TOKEN)
+if not MODEL_NAME and TOKEN:
+    print(f"MODEL_NAME={MODEL_NAME} and HF_TOKEN={TOKEN}")
+    raise ValueError("MODEL_NAME and HF_TOKEN must be set in the environment.")
+
+load_model = partial(AutoModelForCausalLM.from_pretrained, MODEL_NAME, token=TOKEN)
+load_tokenizer = partial(AutoTokenizer.from_pretrained, MODEL_NAME, token=TOKEN)
+
+
+def get_dataset(path: Path, name: str = DATASET_NAME) -> None:
+    if path.exists():
+        warning("Data already exists.")
+    else:
+        info("Downloading the data...")
+
+        # Download the customer service robot support dialogue from hugging face
+        dataset = load_dataset(name, cache_dir=None)
+
+        # Convert the dataset to a pandas dataframe
+        dialogues = dataset["train"]
+        df = DataFrame(dialogues, columns=["id", "description", "dialogue"])
+
+        # Print the first 5 rows of the dataframe
+        print(df.head())
+
+        # only keep the dialogue column
+        dialog_df = df.loc[:, "dialogue"]
+        # save the data to txt file
+        dialog_df.to_csv(path, sep=" ", index=False)
 
 
 @dataclass(slots=True)
-class MaintainenceBot:
+class MaintenanceBot:
     model: AutoModelForCausalLM = field(default_factory=load_model)
     tokenizer: AutoTokenizer = field(default_factory=load_tokenizer)
-
-
-@dataclass(slots=True)
-class PickerBot:
-    data: Path
-    model: str
+    dataset_path: Path = field(default=DATASET_PATH)
+    vectorstore_chunk_size: int = 500
+    vectorstore_overlap: int = 25
+    context_top_k: int = 2
+    context_verbosity: bool = False
+    index: VectorStore = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        self.data = Path(self.data) if not isinstance(self.data, Path) else self.data
-        if self.data is None:
-            raise ValueError("data path cannot be None.")
+        """Initialize the bot."""
+        get_dataset(self.dataset_path)
+        self.index = self.get_vectorstore()
 
-    def data_proc(self) -> None:
-        if not self.data.exists():
-            print("Downloading the data...")
-            # Download the customer service robot support dialogue from hugging face
-            dataset = load_dataset(DATASET_NAME, cache_dir=None)
-
-            # Convert the dataset to a pandas dataframe
-            dialogues = dataset["train"]
-            df = DataFrame(dialogues, columns=["id", "description", "dialogue"])
-
-            # Print the first 5 rows of the dataframe
-            print(df.head())
-
-            # only keep the dialogue column
-            dialog_df = df.loc[:, "dialogue"]
-
-            # save the data to txt file
-            dialog_df.to_csv(self.data, sep=" ", index=False)
-        else:
-            print("Data already exists.")
-
-    def create_vectorstore(
-        self, chunk_size: int = 500, overlap: int = 25
-    ) -> VectorStore:
-        loader = TextLoader(self.data)
-        # Text Splitter
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size, chunk_overlap=overlap
+    @property
+    def text_splitter(self) -> RecursiveCharacterTextSplitter:
+        return RecursiveCharacterTextSplitter(
+            chunk_size=self.vectorstore_chunk_size,
+            chunk_overlap=self.vectorstore_overlap,
         )
-        # Embed the document and store into chroma DB
-        self.index = Chroma(
-            embedding=HuggingFaceEmbeddings(), text_splitter=text_splitter
-        ).from_loaders([loader])
 
-    def inference(
-        self, user_input: str, context_verbosity: bool = False, top_k: int = 2
+    def get_embedding_function(self) -> HuggingFaceEmbeddings:
+        return HuggingFaceEmbeddings(model_name=MODEL_NAME)
+
+    def get_vectorstore(self) -> VectorStore:
+        documents = TextLoader(self.dataset_path).load()
+        split_docs = self.text_splitter.split_documents(documents)  # Text Splitter
+        # Embed the document and store into chroma DB
+        embedding_function = self.get_embedding_function()
+        return Chroma.from_documents(split_docs, embedding_function)
+
+    @staticmethod
+    def get_context(
+        index: VectorStore,
+        user_input: str,
+        top_k: int = 2,
+        context_verbosity: bool = False,
     ) -> str:
-        # perform similarity search and retrieve the context from our documents
-        results = self.index.vectorstore.similarity_search(user_input, k=top_k)
-        # join all context information into one string
+        """Retrieve the context from the documents."""
+        results = index.similarity_search(user_input, k=top_k)
         context = "\n".join([document.page_content for document in results])
         if context_verbosity:
             print("Retrieving information related to your question...")
             print(
                 f"Found this content which is most similar to your question: {context}"
             )
+        return context
 
-        template = """
-        Please use the following apple picker technical support related questions to answer questions. 
-        Context: {context}
-        ---
-        This is the user's question: {question}
-        Answer: This is what our auto apple picker technical expert suggest."""
-
-        prompt = PromptTemplate(
-            template=template, input_variables=["context", "question"]
+    def get_prompt_template(self, context: str) -> PromptTemplate:
+        return PromptTemplate(
+            template=TEMPLATE_BASE, input_variables=["context", "question"]
         ).partial(context=context)
 
+    def inference(self, user_input: str) -> str:
+        context = MaintenanceBot.get_context(
+            self.index,
+            user_input,
+            top_k=self.context_top_k,
+            context_verbosity=self.context_verbosity,
+        )
+        prompt = self.get_prompt_template(context)
         llm_chain = SimpleChatModel(prompt=prompt, llm=self.model)
 
-        print("Processing the information with gpt4all...\n")
+        print(f"Processing the information with {self.model}...\n")
         start_time = time()
         response = llm_chain.run(user_input)
         elapsed_time_milliseconds = (time() - start_time) * 1000
@@ -116,3 +138,10 @@ class PickerBot:
         )
 
         return processed_reponse
+
+
+if __name__ == "__main__":
+    bot = MaintenanceBot()
+    user_input = "How to fix the apple picker?"
+    response = bot.inference(user_input)
+    print(response)
