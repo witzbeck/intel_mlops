@@ -22,7 +22,7 @@ async def ping():
 
 
 @app.post("/predict")
-async def predict(payload: GenPayload) -> dict[str:str]:
+async def predict(payload: GenPayload) -> dict[str, str]:
     """Endpoint to perform similarity search and inference"""
     bot = PickerBot(payload.data, model=getenv("MODEL_NAME"))
     bot.data_proc()
