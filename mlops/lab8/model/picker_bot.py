@@ -1,30 +1,27 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import partial
 from os import getenv
 from pathlib import Path
 from time import time
 
-from attr import field
-from langchain_core.vectorstores import VectorStore
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
-from langchain.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.indexes import VectorstoreIndexCreator
-from langchain.embeddings import HuggingFaceEmbeddings
 from datasets import load_dataset
+from langchain_core.vectorstores import VectorStore
+from langchain_core.language_models.chat_models import SimpleChatModel
+from langchain_core.prompts import PromptTemplate
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores.chroma import Chroma
+from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
 from pandas import DataFrame
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
+DATASET_NAME = "FunDialogues/customer-service-apple-picker-maintenance"
 MODEL_NAME = getenv("MODEL_NAME")
 TOKEN = getenv("HF_TOKEN")
 
 load_model = partial(AutoModelForCausalLM, MODEL_NAME, token=TOKEN)
 load_tokenizer = partial(AutoTokenizer, MODEL_NAME, token=TOKEN)
-
-
-
 
 
 @dataclass(slots=True)
@@ -47,19 +44,17 @@ class PickerBot:
         if not self.data.exists():
             print("Downloading the data...")
             # Download the customer service robot support dialogue from hugging face
-            dataset = load_dataset(
-                "FunDialogues/customer-service-apple-picker-maintenance", cache_dir=None
-            )
+            dataset = load_dataset(DATASET_NAME, cache_dir=None)
 
             # Convert the dataset to a pandas dataframe
             dialogues = dataset["train"]
             df = DataFrame(dialogues, columns=["id", "description", "dialogue"])
 
             # Print the first 5 rows of the dataframe
-            df.head()
+            print(df.head())
 
             # only keep the dialogue column
-            dialog_df = df["dialogue"]
+            dialog_df = df.loc[:, "dialogue"]
 
             # save the data to txt file
             dialog_df.to_csv(self.data, sep=" ", index=False)
@@ -75,7 +70,7 @@ class PickerBot:
             chunk_size=chunk_size, chunk_overlap=overlap
         )
         # Embed the document and store into chroma DB
-        self.index = VectorstoreIndexCreator(
+        self.index = Chroma(
             embedding=HuggingFaceEmbeddings(), text_splitter=text_splitter
         ).from_loaders([loader])
 
@@ -103,7 +98,7 @@ class PickerBot:
             template=template, input_variables=["context", "question"]
         ).partial(context=context)
 
-        llm_chain = LLMChain(prompt=prompt, llm=self.model)
+        llm_chain = SimpleChatModel(prompt=prompt, llm=self.model)
 
         print("Processing the information with gpt4all...\n")
         start_time = time()
