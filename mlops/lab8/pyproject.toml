@@ -13,12 +13,8 @@ datasets="*"
 tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
+langchain-google-genai = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[[tool.poetry.source]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cpu"
-priority = "supplemental"
