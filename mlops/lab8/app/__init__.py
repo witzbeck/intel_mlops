@@ -9,4 +9,6 @@ filterwarnings("ignore")
 debug(here := Path(__file__).parent)
 # Add parent directory to path
 path.append(str(Path.cwd().parent))
-logconfig = basicConfig(level=DEBUG, filename=str(here.parent / f"{here.parent.stem}.log"))
+logconfig = basicConfig(
+    level=DEBUG, filename=str(here.parent / f"{here.parent.stem}.log")
+)
