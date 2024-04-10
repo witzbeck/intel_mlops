@@ -5,7 +5,6 @@ headers = {"Content-Type": "application/json"}
 
 
 class GenPayload(BaseModel):
-    data: str
     user_input: str
 
 

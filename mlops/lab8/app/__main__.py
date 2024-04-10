@@ -3,7 +3,7 @@ from json import dumps
 
 from requests import get, post
 
-from model.data_model import GenPayload, headers, url_base
+from model.data_model import headers, url_base
 
 
 if __name__ == "__main__":
@@ -21,8 +21,8 @@ if __name__ == "__main__":
     elif args.predict:
         print(f"headers: {headers}")
         request_type = "prediction"
-        print(f"sending {GenPayload}")
-        response = post(f"{url_base}/predict", headers=headers, data=dumps(GenPayload))
+        print("prompt: ", args.prompt)
+        response = post(f"{url_base}/predict", headers=headers, data=dumps(dict(user_input=args.prompt)))
     else:
         raise ValueError(f"No valid arguments passed | {parser.print_help()}")
 
