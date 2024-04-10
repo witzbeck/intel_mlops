@@ -13,5 +13,8 @@ COPY . .
 # Install the package
 RUN pip install -e .
 
+# Start bot to load dataset
+RUN python model/picker_bot.py
+
 # Make port 80 available to the world outside this container
 EXPOSE 80
