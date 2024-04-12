@@ -1,5 +1,5 @@
 # Use an official runtime as a parent image
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11-slim
 
 # Copy the requirements file from the host to the container
 COPY ./requirements.txt requirements.txt
@@ -12,9 +12,6 @@ COPY . .
 
 # Install the package
 RUN pip install -e .
-
-# Start bot to load dataset
-RUN python model/picker_bot.py
 
 # Make port 80 available to the world outside this container
 EXPOSE 80

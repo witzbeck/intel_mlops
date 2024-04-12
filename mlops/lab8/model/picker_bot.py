@@ -7,32 +7,28 @@ from time import time
 
 from datasets import load_dataset
 from langchain_core.vectorstores import VectorStore
-from langchain_core.language_models.chat_models import SimpleChatModel
-from langchain_core.prompts import PromptTemplate
-from langchain_community.document_loaders import TextLoader
+from langchain.chains.llm import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.document_loaders.text import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.chroma import Chroma
-from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from pandas import DataFrame
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-from alexlib.files.config import DotEnv
 from model.data_model import TEMPLATE_BASE
-
-here = Path(__file__).parent
-DotEnv.from_path(here.parent / ".env")
+from app.__init__ import here
 
 DATASET_NAME = "FunDialogues/customer-service-apple-picker-maintenance"
 DATASET_PATH = here / "models/pickerbot" / "data.txt"
 MODEL_NAME = getenv("HF_MODEL")
 TOKEN = getenv("HF_TOKEN")
 
+DATASET_PATH.parent.mkdir(parents=True, exist_ok=True)
+
 if not MODEL_NAME and TOKEN:
     print(f"MODEL_NAME={MODEL_NAME} and HF_TOKEN={TOKEN}")
     raise ValueError("MODEL_NAME and HF_TOKEN must be set in the environment.")
-
-load_model = partial(AutoModelForCausalLM.from_pretrained, MODEL_NAME, token=TOKEN)
-load_tokenizer = partial(AutoTokenizer.from_pretrained, MODEL_NAME, token=TOKEN)
 
 
 def get_dataset(path: Path, name: str = DATASET_NAME) -> None:
@@ -54,23 +50,30 @@ def get_dataset(path: Path, name: str = DATASET_NAME) -> None:
         # only keep the dialogue column
         dialog_df = df.loc[:, "dialogue"]
         # save the data to txt file
+        path.parent.mkdir(parents=True, exist_ok=True)
         dialog_df.to_csv(path, sep=" ", index=False)
 
 
 @dataclass(slots=True)
 class MaintenanceBot:
-    model: AutoModelForCausalLM = field(default_factory=load_model)
-    tokenizer: AutoTokenizer = field(default_factory=load_tokenizer)
     dataset_path: Path = field(default=DATASET_PATH)
     vectorstore_chunk_size: int = 500
     vectorstore_overlap: int = 25
     context_top_k: int = 2
     context_verbosity: bool = False
     index: VectorStore = field(init=False, repr=False)
+    model: AutoModelForCausalLM = field(init=False)
+    tokenizer: AutoTokenizer = field(init=False)
 
     def __post_init__(self) -> None:
         """Initialize the bot."""
         get_dataset(self.dataset_path)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME, torch_dtype="auto", trust_remote_code=True
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            MODEL_NAME, trust_remote_code=True
+        )
         self.index = self.get_vectorstore()
 
     @property
@@ -80,15 +83,12 @@ class MaintenanceBot:
             chunk_overlap=self.vectorstore_overlap,
         )
 
-    def get_embedding_function(self) -> HuggingFaceEmbeddings:
-        return HuggingFaceEmbeddings(model_name=MODEL_NAME)
-
     def get_vectorstore(self) -> VectorStore:
         documents = TextLoader(self.dataset_path).load()
         split_docs = self.text_splitter.split_documents(documents)  # Text Splitter
-        # Embed the document and store into chroma DB
-        embedding_function = self.get_embedding_function()
-        return Chroma.from_documents(split_docs, embedding_function)
+        return Chroma.from_documents(
+            split_docs, HuggingFaceEmbeddings()
+        )  # Embed the document and store into chroma DB
 
     @staticmethod
     def get_context(
@@ -113,14 +113,17 @@ class MaintenanceBot:
         ).partial(context=context)
 
     def inference(self, user_input: str) -> str:
+        print("getting context...")
         context = MaintenanceBot.get_context(
             self.index,
             user_input,
             top_k=self.context_top_k,
             context_verbosity=self.context_verbosity,
         )
+        print("getting prompt...")
         prompt = self.get_prompt_template(context)
-        llm_chain = SimpleChatModel(prompt=prompt, llm=self.model)
+        print("running inference...")
+        llm_chain = LLMChain(prompt=prompt, llm=self.model, tokenizer=self.tokenizer)
 
         print(f"Processing the information with {self.model}...\n")
         start_time = time()
@@ -142,6 +145,6 @@ class MaintenanceBot:
 
 if __name__ == "__main__":
     bot = MaintenanceBot()
-    user_input = "How to fix the apple picker?"
+    user_input = "How do I fix the apple picker? It's billowing smoke."
     response = bot.inference(user_input)
     print(response)
