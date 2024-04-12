@@ -6,14 +6,12 @@ authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-alexlib = {git = "http://github.com/witzbeck/alexlib.git", branch = "main"}
 langchain="*"
 transformers="*"
 datasets="*"
 tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
-langchain-google-genai = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
