@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "lab9"
+version = "0.1.0"
+description = ""
+authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+transformers = "*"
+torch = "*"
+intel_extension_for_pytorch = "*"
+datasets = "*"
+accelerate = "*"
+ipykernel = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "intel-pytorch-extension"
+url = "https://pytorch-extension.intel.com/release-whl/stable/cpu/us/"
+priority = "supplemental"
