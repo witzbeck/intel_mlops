@@ -18,6 +18,14 @@
 		"git.openRepositoryInParentFolders": "always",
 		"git.enableSmartCommit": true,
 		"git.confirmSync": false,
+		"[python]": {
+			"editor.formatOnType": true,
+			"editor.defaultFormatter": "charliermarsh.ruff",
+			"editor.codeActionsOnSave": {
+				"source.fixAll": "explicit",
+				"source.organizeImports": "explicit"
+			}
+		},
 		"python.poetryPath": "poetry",
 		"python.analysis.enablePytestSupport": true,
 		"python.languageServer": "Default",
@@ -27,10 +35,13 @@
 		"python.testing.pytestEnabled": true,
 		"python.testing.pytestPath": "poetry run pytest",
 		"python.testing.unittestEnabled": false,
-		"[python]": {
-			"editor.formatOnType": true,
-			"editor.defaultFormatter": "charliermarsh.ruff"
-		},
+		"ruff.format.args": [
+			"--config=../../../../repos/intel_mlops/ruff.toml"
+		],
+		
+		"ruff.lint.args": [
+			"--config=../../../../repos/intel_mlops/ruff.toml"
+		],
 		"ruff.codeAction.disableRuleComment": {
 			"enable": false
 		},

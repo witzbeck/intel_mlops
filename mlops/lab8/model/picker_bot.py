@@ -1,23 +1,22 @@
 from dataclasses import dataclass, field
-from functools import partial
 from logging import info, warning
 from os import getenv
 from pathlib import Path
 from time import time
 
 from datasets import load_dataset
-from langchain_core.vectorstores import VectorStore
 from langchain.chains.llm import LLMChain
-from langchain.prompts import PromptTemplate
 from langchain.document_loaders.text import TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores.chroma import Chroma
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain.indexes import VectorstoreIndexCreator
+from langchain.prompts import PromptTemplate
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores.inmemory import InMemoryVectorStore
 from pandas import DataFrame
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from model.data_model import TEMPLATE_BASE
 from app.__init__ import here
+from model.data_model import TEMPLATE_BASE
 
 DATASET_NAME = "FunDialogues/customer-service-apple-picker-maintenance"
 DATASET_PATH = here / "models/pickerbot" / "data.txt"
@@ -61,7 +60,7 @@ class MaintenanceBot:
     vectorstore_overlap: int = 25
     context_top_k: int = 2
     context_verbosity: bool = False
-    index: VectorStore = field(init=False, repr=False)
+    index: InMemoryVectorStore = field(init=False, repr=False)
     model: AutoModelForCausalLM = field(init=False)
     tokenizer: AutoTokenizer = field(init=False)
 
@@ -83,16 +82,16 @@ class MaintenanceBot:
             chunk_overlap=self.vectorstore_overlap,
         )
 
-    def get_vectorstore(self) -> VectorStore:
-        documents = TextLoader(self.dataset_path).load()
-        split_docs = self.text_splitter.split_documents(documents)  # Text Splitter
-        return Chroma.from_documents(
-            split_docs, HuggingFaceEmbeddings()
-        )  # Embed the document and store into chroma DB
+    def get_vectorstore(self) -> InMemoryVectorStore:
+        documents = TextLoader(self.dataset_path)
+        return VectorstoreIndexCreator(
+            embedding=HuggingFaceEmbeddings(),
+            text_splitter=self.text_splitter, 
+        ).from_loaders([documents])  # Embed the document and store in memory
 
     @staticmethod
     def get_context(
-        index: VectorStore,
+        index: InMemoryVectorStore,
         user_input: str,
         top_k: int = 2,
         context_verbosity: bool = False,
