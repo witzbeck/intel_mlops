@@ -22,7 +22,11 @@ if __name__ == "__main__":
         print(f"headers: {headers}")
         request_type = "prediction"
         print("prompt: ", args.prompt)
-        response = post(f"{url_base}/predict", headers=headers, data=dumps(dict(user_input=args.prompt)))
+        response = post(
+            f"{url_base}/predict",
+            headers=headers,
+            data=dumps(dict(user_input=args.prompt)),
+        )
     else:
         raise ValueError(f"No valid arguments passed | {parser.print_help()}")
 

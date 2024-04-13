@@ -28,4 +28,3 @@ for key, value in pairs:
         environ[key] = value
     else:
         debug(f"{key} already set to {environ[key]}")
-
