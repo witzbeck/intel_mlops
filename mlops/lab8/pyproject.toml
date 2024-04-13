@@ -5,13 +5,14 @@ description = ""
 authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 langchain="*"
 transformers="*"
 datasets="*"
 tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
+# sqlite3="^3.35"
 
 [build-system]
 requires = ["poetry-core"]
