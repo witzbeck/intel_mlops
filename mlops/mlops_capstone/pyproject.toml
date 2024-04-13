@@ -1,18 +1,27 @@
 [tool.poetry]
-name = "lab9"
+name = "capstone"
 version = "0.1.0"
 description = ""
 authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
-transformers = "*"
-torch = "*"
-intel-extension-for-pytorch = "*"
-datasets = "*"
-accelerate = "*"
-ipykernel = "*"
+python = "^3.10"
+pandas = "*"
+streamlit = "*"
+Pillow = "*"
+
+[tool.poetry.group.bot.dependencies]
+matplotlib = "*"
+
+[tool.poetry.group.app.dependencies]
+uvicorn = "*"
+fastapi = "*"
+pydantic = "*"
+daal4py = "*"
+xgboost = "*"
+scikit-learn-intelex = "*"
+mlflow = "*"
 
 [build-system]
 requires = ["poetry-core"]
