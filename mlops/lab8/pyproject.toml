@@ -13,6 +13,7 @@ tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
 # sqlite3="^3.35"
+llama-cpp-python = "^0.2.61"
 
 [build-system]
 requires = ["poetry-core"]

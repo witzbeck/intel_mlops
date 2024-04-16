@@ -4,19 +4,21 @@ from os import getenv
 from pathlib import Path
 from time import time
 
+from app.__init__ import here
 from datasets import load_dataset
 from langchain.chains.llm import LLMChain
 from langchain.document_loaders.text import TextLoader
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.indexes import VectorstoreIndexCreator
+from langchain.llms.base import BaseLLM
+from langchain.llms.llamacpp import LlamaCpp
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.inmemory import InMemoryVectorStore
+from model.data_model import TEMPLATE_BASE
 from pandas import DataFrame
 from transformers import AutoModelForCausalLM, AutoTokenizer
-
-from app.__init__ import here
-from model.data_model import TEMPLATE_BASE
 
 DATASET_NAME = "FunDialogues/customer-service-apple-picker-maintenance"
 DATASET_PATH = here / "models/pickerbot" / "data.txt"
@@ -56,7 +58,7 @@ def get_dataset(path: Path, name: str = DATASET_NAME) -> None:
 @dataclass(slots=True)
 class MaintenanceBot:
     dataset_path: Path = field(default=DATASET_PATH)
-    vectorstore_chunk_size: int = 500
+    vectorstore_chunk_size: int = 50
     vectorstore_overlap: int = 25
     context_top_k: int = 2
     context_verbosity: bool = False
@@ -64,12 +66,17 @@ class MaintenanceBot:
     model: AutoModelForCausalLM = field(init=False)
     tokenizer: AutoTokenizer = field(init=False)
 
+    @staticmethod
+    def get_model() -> BaseLLM:
+        callbacks = [StreamingStdOutCallbackHandler()]
+        return LlamaCpp(
+            name=MODEL_NAME, torch_dtype="auto", trust_remote_code=True, callbacks=callbacks
+        )
+
     def __post_init__(self) -> None:
         """Initialize the bot."""
         get_dataset(self.dataset_path)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            MODEL_NAME, torch_dtype="auto", trust_remote_code=True
-        )
+        self.model = MaintenanceBot.get_model()
         self.tokenizer = AutoTokenizer.from_pretrained(
             MODEL_NAME, trust_remote_code=True
         )
@@ -86,7 +93,7 @@ class MaintenanceBot:
         documents = TextLoader(self.dataset_path)
         return VectorstoreIndexCreator(
             embedding=HuggingFaceEmbeddings(),
-            text_splitter=self.text_splitter, 
+            text_splitter=self.text_splitter,
         ).from_loaders([documents])  # Embed the document and store in memory
 
     @staticmethod
@@ -97,7 +104,7 @@ class MaintenanceBot:
         context_verbosity: bool = False,
     ) -> str:
         """Retrieve the context from the documents."""
-        results = index.similarity_search(user_input, k=top_k)
+        results = index.vectorstore.similarity_search(user_input, k=top_k)
         context = "\n".join([document.page_content for document in results])
         if context_verbosity:
             print("Retrieving information related to your question...")
@@ -122,7 +129,7 @@ class MaintenanceBot:
         print("getting prompt...")
         prompt = self.get_prompt_template(context)
         print("running inference...")
-        llm_chain = LLMChain(prompt=prompt, llm=self.model, tokenizer=self.tokenizer)
+        llm_chain = LLMChain(prompt=prompt, llm=self.model)
 
         print(f"Processing the information with {self.model}...\n")
         start_time = time()
