@@ -70,7 +70,11 @@ class MaintenanceBot:
     def get_model() -> BaseLLM:
         callbacks = [StreamingStdOutCallbackHandler()]
         return LlamaCpp(
-            name=MODEL_NAME, torch_dtype="auto", trust_remote_code=True, callbacks=callbacks
+            name=MODEL_NAME,
+            model_path="llama.cpp",
+            torch_dtype="auto",
+            trust_remote_code=True,
+            callbacks=callbacks,
         )
 
     def __post_init__(self) -> None:
