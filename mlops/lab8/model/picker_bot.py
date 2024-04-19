@@ -23,6 +23,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 DATASET_NAME = "FunDialogues/customer-service-apple-picker-maintenance"
 DATASET_PATH = here / "models/pickerbot" / "data.txt"
 MODEL_NAME = getenv("HF_MODEL")
+MODEL_PATH = "./llama.cpp"
 TOKEN = getenv("HF_TOKEN")
 
 DATASET_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -71,7 +72,7 @@ class MaintenanceBot:
         callbacks = [StreamingStdOutCallbackHandler()]
         return LlamaCpp(
             name=MODEL_NAME,
-            model_path="llama.cpp",
+            model_path=MODEL_PATH,
             torch_dtype="auto",
             trust_remote_code=True,
             callbacks=callbacks,
@@ -82,7 +83,7 @@ class MaintenanceBot:
         get_dataset(self.dataset_path)
         self.model = MaintenanceBot.get_model()
         self.tokenizer = AutoTokenizer.from_pretrained(
-            MODEL_NAME, trust_remote_code=True
+            name=MODEL_NAME, pretrained_model_name_or_path=MODEL_PATH, trust_remote_code=True
         )
         self.index = self.get_vectorstore()
 
