@@ -13,6 +13,7 @@ tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
 requests = "^2.31.0"
+llama-cpp-python = "^0.2.61"
 
 [build-system]
 requires = ["poetry-core"]
