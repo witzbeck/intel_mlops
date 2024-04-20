@@ -12,7 +12,7 @@ datasets="*"
 tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
-# sqlite3="^3.35"
+requests = "^2.31.0"
 
 [build-system]
 requires = ["poetry-core"]
