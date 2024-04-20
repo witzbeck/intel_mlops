@@ -71,7 +71,7 @@ class MaintenanceBot:
             MODEL_NAME, torch_dtype="auto", trust_remote_code=True
         )
         self.tokenizer = AutoTokenizer.from_pretrained(
-            MODEL_NAME, trust_remote_code=True
+            MODEL_NAME#, trust_remote_code=True
         )
         self.index = self.get_vectorstore()
 
@@ -91,13 +91,13 @@ class MaintenanceBot:
 
     @staticmethod
     def get_context(
-        index: InMemoryVectorStore,
+        vectorstore: InMemoryVectorStore,
         user_input: str,
         top_k: int = 2,
         context_verbosity: bool = False,
     ) -> str:
         """Retrieve the context from the documents."""
-        results = index.similarity_search(user_input, k=top_k)
+        results = vectorstore.similarity_search(user_input, k=top_k)
         context = "\n".join([document.page_content for document in results])
         if context_verbosity:
             print("Retrieving information related to your question...")
@@ -114,7 +114,7 @@ class MaintenanceBot:
     def inference(self, user_input: str) -> str:
         print("getting context...")
         context = MaintenanceBot.get_context(
-            self.index,
+            self.index.vectorstore,
             user_input,
             top_k=self.context_top_k,
             context_verbosity=self.context_verbosity,
@@ -122,11 +122,11 @@ class MaintenanceBot:
         print("getting prompt...")
         prompt = self.get_prompt_template(context)
         print("running inference...")
-        llm_chain = LLMChain(prompt=prompt, llm=self.model, tokenizer=self.tokenizer)
+        llm_chain = LLMChain(prompt=prompt, llm=self.model)
 
         print(f"Processing the information with {self.model}...\n")
         start_time = time()
-        response = llm_chain.run(user_input)
+        response = llm_chain.run(lambda: user_input)
         elapsed_time_milliseconds = (time() - start_time) * 1000
 
         tokens = len(response.split())
