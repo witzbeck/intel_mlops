@@ -8,6 +8,7 @@ services:
     volumes:
       - ./app:/app/app
       - ./model:/app/model
+      - ./tests:/tests
     ports:
       - "80:80"
     env_file:

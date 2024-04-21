@@ -20,5 +20,9 @@ COPY . .
 # Install the package
 RUN pip install -e .
 
+RUN pip install pytest
+RUN pytest tests/test_init_conditions.py
+RUN pytest tests/test_bot.py
+
 # Make port 80 available to the world outside this container
 EXPOSE 80

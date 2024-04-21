@@ -2,7 +2,6 @@ from os import environ
 from pathlib import Path
 from unittest import main, TestCase
 
-
 from app.__init__ import here
 from model.picker_bot import DATASET_NAME, DATASET_PATH, MODEL_NAME, TOKEN
 

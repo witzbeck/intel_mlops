@@ -6,9 +6,12 @@ from time import time
 
 from datasets import load_dataset
 from langchain.chains.llm import LLMChain
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
 from langchain.document_loaders.text import TextLoader
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.indexes import VectorstoreIndexCreator
+from langchain.indexes.vectorstore import VectorStoreIndexWrapper
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.inmemory import InMemoryVectorStore
@@ -30,7 +33,9 @@ if not MODEL_NAME and TOKEN:
     raise ValueError("MODEL_NAME and HF_TOKEN must be set in the environment.")
 
 
-def get_dataset(path: Path, name: str = DATASET_NAME) -> None:
+def get_dataset(
+    path: Path = DATASET_PATH, name: str = DATASET_NAME, show_rows: int = 5
+) -> None:
     if path.exists():
         warning("Data already exists.")
     else:
@@ -44,7 +49,7 @@ def get_dataset(path: Path, name: str = DATASET_NAME) -> None:
         df = DataFrame(dialogues, columns=["id", "description", "dialogue"])
 
         # Print the first 5 rows of the dataframe
-        print(df.head())
+        print(df.head(show_rows))
 
         # only keep the dialogue column
         dialog_df = df.loc[:, "dialogue"]
@@ -60,20 +65,23 @@ class MaintenanceBot:
     vectorstore_overlap: int = 25
     context_top_k: int = 2
     context_verbosity: bool = False
-    index: InMemoryVectorStore = field(init=False, repr=False)
+    index: VectorStoreIndexWrapper = field(init=False, repr=False)
+    vectorstore: InMemoryVectorStore = field(init=False, repr=False)
     model: AutoModelForCausalLM = field(init=False)
     tokenizer: AutoTokenizer = field(init=False)
 
     def __post_init__(self) -> None:
         """Initialize the bot."""
-        get_dataset(self.dataset_path)
+        if not DATASET_PATH.exists():
+            get_dataset()
         self.model = AutoModelForCausalLM.from_pretrained(
             MODEL_NAME, torch_dtype="auto", trust_remote_code=True
         )
         self.tokenizer = AutoTokenizer.from_pretrained(
-            MODEL_NAME#, trust_remote_code=True
+            MODEL_NAME, trust_remote_code=True, padding_side="left"
         )
-        self.index = self.get_vectorstore()
+        self.index = self.get_vectorstore_index()
+        self.vectorstore = self.index.vectorstore
 
     @property
     def text_splitter(self) -> RecursiveCharacterTextSplitter:
@@ -82,11 +90,11 @@ class MaintenanceBot:
             chunk_overlap=self.vectorstore_overlap,
         )
 
-    def get_vectorstore(self) -> InMemoryVectorStore:
+    def get_vectorstore_index(self) -> VectorStoreIndexWrapper:
         documents = TextLoader(self.dataset_path)
         return VectorstoreIndexCreator(
             embedding=HuggingFaceEmbeddings(),
-            text_splitter=self.text_splitter, 
+            text_splitter=self.text_splitter,
         ).from_loaders([documents])  # Embed the document and store in memory
 
     @staticmethod
@@ -111,22 +119,26 @@ class MaintenanceBot:
             template=TEMPLATE_BASE, input_variables=["context", "question"]
         ).partial(context=context)
 
-    def inference(self, user_input: str) -> str:
+    def inference(self, question: str) -> str:
         print("getting context...")
         context = MaintenanceBot.get_context(
-            self.index.vectorstore,
-            user_input,
+            self.vectorstore,
+            question,
             top_k=self.context_top_k,
             context_verbosity=self.context_verbosity,
         )
         print("getting prompt...")
         prompt = self.get_prompt_template(context)
         print("running inference...")
-        llm_chain = LLMChain(prompt=prompt, llm=self.model)
+        rag_chain = (
+            {"context": lambda x: context, "question": RunnablePassthrough()}
+            | prompt
+            | self.model
+        )
 
         print(f"Processing the information with {self.model}...\n")
         start_time = time()
-        response = llm_chain.run(lambda: user_input)
+        response = rag_chain.invoke(question)
         elapsed_time_milliseconds = (time() - start_time) * 1000
 
         tokens = len(response.split())
