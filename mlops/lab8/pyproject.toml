@@ -13,7 +13,14 @@ tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
 requests = "^2.31.0"
+accelerate = "^0.29.3"
+torch = "^2+cpu"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "torch"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "supplemental"
