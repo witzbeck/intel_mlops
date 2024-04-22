@@ -1,28 +1,40 @@
+from collections.abc import Generator
 from dataclasses import dataclass, field
+from functools import cached_property
 from logging import info, warning
 from os import getenv
 from pathlib import Path
+from threading import Thread
 from time import time
 
 from datasets import load_dataset
+from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain.chains.llm import LLMChain
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
+from langchain.vectorstores.base import VectorStoreRetriever
 from langchain.document_loaders.text import TextLoader
 from langchain.embeddings.huggingface import HuggingFaceEmbeddings
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.indexes.vectorstore import VectorStoreIndexWrapper
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts.prompt import PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.inmemory import InMemoryVectorStore
+from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
 from pandas import DataFrame
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    pipeline,
+    TextIteratorStreamer,
+)
 
 from app.__init__ import here
 from model.data_model import TEMPLATE_BASE
 
 DATASET_NAME = "FunDialogues/customer-service-apple-picker-maintenance"
 DATASET_PATH = here / "models/pickerbot" / "data.txt"
+MAX_NEW_TOKENS = 512
 MODEL_NAME = getenv("HF_MODEL")
 TOKEN = getenv("HF_TOKEN")
 
@@ -75,7 +87,10 @@ class MaintenanceBot:
         if not DATASET_PATH.exists():
             get_dataset()
         self.model = AutoModelForCausalLM.from_pretrained(
-            MODEL_NAME, torch_dtype="auto", trust_remote_code=True
+            MODEL_NAME,
+            torch_dtype="auto",
+            trust_remote_code=True,
+            #device_map="auto",
         )
         self.tokenizer = AutoTokenizer.from_pretrained(
             MODEL_NAME, trust_remote_code=True, padding_side="left"
@@ -115,47 +130,72 @@ class MaintenanceBot:
         return context
 
     def get_prompt_template(self, context: str) -> PromptTemplate:
-        return PromptTemplate(
-            template=TEMPLATE_BASE, input_variables=["context", "question"]
-        ).partial(context=context)
+        return PromptTemplate.from_template(template=TEMPLATE_BASE).partial(
+            context=context
+        )
 
-    def inference(self, question: str) -> str:
+    def inference(self, question: str) -> Generator[str, None, None]:
+        streamer = TextIteratorStreamer(
+            tokenizer=self.tokenizer,
+            skip_prompt=True,
+            skip_special_tokens=True,
+            timeout=300.0,
+        )
         print("getting context...")
         context = MaintenanceBot.get_context(
             self.vectorstore,
-            question,
+            user_input=question,
             top_k=self.context_top_k,
             context_verbosity=self.context_verbosity,
         )
         print("getting prompt...")
         prompt = self.get_prompt_template(context)
-        print("running inference...")
-        rag_chain = (
-            {"context": lambda x: context, "question": RunnablePassthrough()}
-            | prompt
-            | self.model
+
+        print("creating pipeline...")
+        rag_pipeline = HuggingFacePipeline(
+            pipeline=pipeline(
+                "text-generation",
+                model=self.model,
+                tokenizer=self.tokenizer,
+                streamer=streamer,
+                pad_token_id=self.tokenizer.eos_token_id,
+                eos_token_id=self.tokenizer.eos_token_id,
+                #device_map="cpu",
+                max_new_tokens=MAX_NEW_TOKENS,
+            )
         )
 
+        print("running inference...")
+        qa_chain = RetrievalQA.from_chain_type(
+            llm=rag_pipeline,
+            retriever=VectorStoreRetriever(
+                vectorstore=self.vectorstore, search_kwargs={"top_k": 2}
+            ),
+            # chain_type_kwargs={"prompt": prompt},
+        )
         print(f"Processing the information with {self.model}...\n")
         start_time = time()
-        response = rag_chain.invoke(question)
-        elapsed_time_milliseconds = (time() - start_time) * 1000
+        qa_chain.invoke({"query": f"{question}"})
 
-        tokens = len(response.split())
-        time_per_token_milliseconds = (
-            elapsed_time_milliseconds / tokens if tokens != 0 else 0
-        )
+        response = ""
+        tokens = 0
+        for token in streamer:
+            response += token
+            tokens += 1
+            elapsed_time_ms = (time() - start_time) * 1000
+
+        time_per_token_ms = elapsed_time_ms / tokens if tokens != 0 else 0
 
         processed_reponse = (
             response
-            + f" --> {time_per_token_milliseconds:.4f} milliseconds/token AND Time taken for response: {elapsed_time_milliseconds:.2f} milliseconds"
+            + f" --> {time_per_token_ms:.4f} ms/token \nTime taken for response: {elapsed_time_ms:.2f} ms"
         )
 
         return processed_reponse
 
 
 if __name__ == "__main__":
-    bot = MaintenanceBot()
+    bot = MaintenanceBot(context_verbosity=True)
     user_input = "How do I fix the apple picker? It's billowing smoke."
     response = bot.inference(user_input)
     print(response)

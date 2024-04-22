@@ -57,7 +57,17 @@ class TestBot(TestCase):
     def test_inference(self):
         """Test the inference method."""
         response = bot.inference(USER_INPUT)
-        self.assertIsInstance(response, str)
+        print(response)
+        print(next(response))
+        print(next(response))
+        print(next(response))
+        print(next(response))
+        print(next(response))
+        print(next(response))
+        print(next(response))
+        print(next(response))
+        print(next(response))
+        self.assertIsNotNone(response)
         self.assertTrue(response)
 
 
