@@ -90,7 +90,7 @@ class MaintenanceBot:
             MODEL_NAME,
             torch_dtype="auto",
             trust_remote_code=True,
-            #device_map="auto",
+            device_map="auto",
         )
         self.tokenizer = AutoTokenizer.from_pretrained(
             MODEL_NAME, trust_remote_code=True, padding_side="left"
@@ -160,7 +160,7 @@ class MaintenanceBot:
                 streamer=streamer,
                 pad_token_id=self.tokenizer.eos_token_id,
                 eos_token_id=self.tokenizer.eos_token_id,
-                #device_map="cpu",
+                device_map="cpu",
                 max_new_tokens=MAX_NEW_TOKENS,
             )
         )

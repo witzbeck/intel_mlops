@@ -12,9 +12,9 @@ datasets="*"
 tiktoken="*"
 chromadb="*"
 sentence_transformers="*"
-requests = "^2.31.0"
-accelerate = "^0.29.3"
-torch = "^2+cpu"
+requests = "^2.31"
+accelerate = "^0.29"
+torch = { version = "*", source = "torch" }
 
 [build-system]
 requires = ["poetry-core"]
