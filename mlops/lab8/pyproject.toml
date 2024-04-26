@@ -7,7 +7,7 @@ authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 langchain="*"
-transformers="*"
+transformers = { git = "https://github.com/huggingface/transformers.git" }
 datasets="*"
 tiktoken="*"
 chromadb="*"

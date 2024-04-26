@@ -91,9 +91,13 @@ class MaintenanceBot:
             torch_dtype="auto",
             trust_remote_code=True,
             device_map="auto",
+            revision=getenv("HF_REVISION"),
         )
         self.tokenizer = AutoTokenizer.from_pretrained(
-            MODEL_NAME, trust_remote_code=True, padding_side="left"
+            MODEL_NAME,
+            trust_remote_code=True,
+            padding_side="left",
+            revision=getenv("HF_REVISION"),
         )
         self.index = self.get_vectorstore_index()
         self.vectorstore = self.index.vectorstore
@@ -158,6 +162,7 @@ class MaintenanceBot:
                 model=self.model,
                 tokenizer=self.tokenizer,
                 streamer=streamer,
+                #inputs={"prompt": prompt},
                 pad_token_id=self.tokenizer.eos_token_id,
                 eos_token_id=self.tokenizer.eos_token_id,
                 device_map="cpu",
@@ -171,7 +176,7 @@ class MaintenanceBot:
             retriever=VectorStoreRetriever(
                 vectorstore=self.vectorstore, search_kwargs={"top_k": 2}
             ),
-            # chain_type_kwargs={"prompt": prompt},
+            #include_run_info=True,
         )
         print(f"Processing the information with {self.model}...\n")
         start_time = time()
