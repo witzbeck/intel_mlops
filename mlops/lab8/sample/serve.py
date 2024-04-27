@@ -4,7 +4,7 @@ import os
 import requests
 
 from tqdm import tqdm
-from gpt4all import GPT4All
+from langchain_community.llms import GPT4All
 from fastapi import FastAPI
 from model import GenPayload
 from PickerBot import PickerBot
@@ -19,7 +19,7 @@ if MODEL_NAME is None:
 if MODEL_FILE is None:
     raise ValueError("HF_FILE environment variable not set")
 
-app = FastAPI()
+# app = FastAPI()
 
 
 def load_gpt4allj(
