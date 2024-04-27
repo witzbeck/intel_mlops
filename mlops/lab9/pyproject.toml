@@ -10,7 +10,8 @@ transformers="*"
 datasets="*"
 accelerate="*"
 intel-extension-for-pytorch="*"
-torch = {version = "*", source = "torch"}
+torch = {version = "^2.2.0, <2.3.0", source = "torch"}
+scikit-learn = "*"
 
 [build-system]
 requires = ["poetry-core"]
