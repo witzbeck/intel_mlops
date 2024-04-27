@@ -9,6 +9,16 @@ libpq-dev \
 && rm -rf /var/lib/apt/lists/* \
 && apt-get clean
 
+# ARGs for downloading the model
+ARG HF_TOKEN
+ARG HF_FILE_URL
+ARG HF_FILE_NAME
+
+RUN ls -la && sleep 15
+
+# Download the model using the token in the header
+RUN curl -H "Authorization: Bearer $HF_TOKEN" "$HF_FILE_URL?raw=true" -o model.gguf
+
 # copy assets over to image
 COPY . /pickerbot
 
@@ -28,13 +38,6 @@ WORKDIR /pickerbot/sample
 # install python dependancies    
 RUN pip3 install --user --no-cache-dir -e ..
 
-# ARGs for downloading the model
-ARG HF_FILE_URL
-ARG HF_TOKEN
-
-# Download the model using the token in the header
-RUN curl -H "Authorization: Bearer $HF_TOKEN" \
-    "$HF_FILE_URL?raw=true" -o model.gguf
     
 RUN ls -la && sleep 15
 

@@ -1,14 +1,14 @@
 from pathlib import Path
-import os
+from os import getenv
 
-from tqdm import tqdm
 from langchain_community.llms import GPT4All
-from PickerBot import PickerBot
 from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
-MODEL_NAME = os.getenv("HF_MODEL_NAME")
-MODEL_FILE = os.getenv("HF_FILE_URL")
-MODEL_PATH = "sample/model.gguf"
+from PickerBot import PickerBot
+
+MODEL_NAME = getenv("HF_MODEL_NAME")
+MODEL_FILE = getenv("HF_FILE_URL")
+MODEL_PATH = "model.gguf"
 
 if MODEL_NAME is None:
     raise ValueError("HF_MODEL environment variable not set")
@@ -22,7 +22,7 @@ callbacks = [StreamingStdOutCallbackHandler()]
 
 # Verbose is required to pass to the callback manager
 model = GPT4All(
-    model_path=MODEL_PATH,
+    model=MODEL_PATH,
     model_name=MODEL_NAME,
     repeat_penalty=1.20,
     callbacks=callbacks,
