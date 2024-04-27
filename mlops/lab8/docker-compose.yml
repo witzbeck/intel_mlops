@@ -8,6 +8,7 @@ services:
       args:
         - HF_TOKEN
         - HF_FILE_URL
+        - HF_FILE_NAME
     volumes:
       - ./sample:/pickerbot/sample
     ports:
