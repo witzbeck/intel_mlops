@@ -1,14 +1,15 @@
+from pathlib import Path
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
-from langchain.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.indexes import VectorstoreIndexCreator
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from datasets import load_dataset
 
-import pandas as pd
-import time
-import os
+
+from pandas import DataFrame
+from time import time
 
 class PickerBot():
     
@@ -19,13 +20,13 @@ class PickerBot():
         
     def data_proc(self):
         
-        if not os.path.isfile(self.data): 
+        if not Path(self.data).is_file(): 
             # Download the customer service robot support dialogue from hugging face
             dataset = load_dataset("FunDialogues/customer-service-apple-picker-maintenance", cache_dir=None)
 
             # Convert the dataset to a pandas dataframe
             dialogues = dataset['train']
-            df = pd.DataFrame(dialogues, columns=['id', 'description', 'dialogue'])
+            df = DataFrame(dialogues, columns=['id', 'description', 'dialogue'])
 
             # Print the first 5 rows of the dataframe
             df.head()
@@ -52,7 +53,7 @@ class PickerBot():
         # join all context information into one string 
         context = "\n".join([document.page_content for document in results])
         if context_verbosity:
-            print(f"Retrieving information related to your question...")
+            print("Retrieving information related to your question...")
             print(f"Found this content which is most similar to your question: {context}")
 
         template = """
@@ -67,9 +68,9 @@ class PickerBot():
         llm_chain = LLMChain(prompt=prompt, llm=self.model)
         
         print("Processing the information with gpt4all...\n")
-        start_time = time.time()
+        start_time = time()
         response = llm_chain.run(user_input)
-        elapsed_time_milliseconds  = (time.time() - start_time) * 1000
+        elapsed_time_milliseconds  = (time() - start_time) * 1000
         
         tokens = len(response.split())
         time_per_token_milliseconds = elapsed_time_milliseconds  / tokens if tokens != 0 else 0

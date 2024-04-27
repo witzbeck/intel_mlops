@@ -36,8 +36,10 @@ ARG HF_TOKEN
 # Download the model using the token in the header
 RUN curl -H "Authorization: Bearer $HF_TOKEN" \
     "$HF_FILE_URL?raw=true" -o model.gguf
+    
+RUN ls -la && sleep 15
 
-COPY model.gguf /pickerbot/sample/model.gguf
+# COPY model.gguf /pickerbot/sample/model.gguf
 
 RUN ls -la && sleep 1
 
