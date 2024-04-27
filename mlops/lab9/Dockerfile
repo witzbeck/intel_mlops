@@ -24,5 +24,12 @@ RUN pip3 install -U --no-cache-dir -e .
 # Expose the port used by Kernel Gateway
 EXPOSE 8888
 
+ENV JUPYTER_GATEWAY_IP \
+    JUPYTER_GATEWAY_PORT \
+    JUPYTER_GATEWAY_API \
+    JUPYTER_ALLOW_ORIGIN \
+    JUPYTER_ALLOW_HEADERS \
+    JUPYTER_ALLOW_METHODS
+
 # Run Jupyter Kernel Gateway
-CMD ["jupyter-kernel-gateway", "--ip=0.0.0.0", "--KernelGatewayApp.api='kernel_gateway.notebook_http'", "--KernelGatewayApp.allow_origin='*'", "--KernelGatewayApp.allow_headers='Content-Type'", "--KernelGatewayApp.allow_methods='GET, POST, DELETE, OPTIONS'"]
+CMD ["sh", "-c", "jupyter-kernel-gateway --ip=${JUPYTER_GATEWAY_IP} --port=${JUPYTER_GATEWAY_PORT} --KernelGatewayApp.api='${JUPYTER_GATEWAY_API}' --KernelGatewayApp.allow_origin='${JUPYTER_ALLOW_ORIGIN}' --KernelGatewayApp.allow_headers='${JUPYTER_ALLOW_HEADERS}' --KernelGatewayApp.allow_methods='${JUPYTER_ALLOW_METHODS}'"]
