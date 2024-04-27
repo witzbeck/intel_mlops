@@ -18,7 +18,6 @@ WORKDIR /pickerbot
 # set PATH
 ENV PATH=/root/.local/bin:$PATH
 
-
 # upgrade pip
 RUN pip3 install --upgrade pip
 
@@ -27,7 +26,7 @@ RUN ls -la && sleep 1
 WORKDIR /pickerbot/sample
 
 # install python dependancies    
-RUN pip3 install --user --no-cache-dir -r requirements.txt
+RUN pip3 install --user --no-cache-dir -e ..
 
 # ARGs for downloading the model
 ARG HF_FILE_URL
