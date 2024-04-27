@@ -1,9 +1,16 @@
 version: '3.8'
 
 services:
-  fastapi:
+  jupyter:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - JUPYTER_GATEWAY_IP
+        - JUPYTER_GATEWAY_PORT
+        - JUPYTER_GATEWAY_API
+        - JUPYTER_ALLOW_ORIGIN
+        - JUPYTER_ALLOW_HEADERS
+        - JUPYTER_ALLOW_METHODS
     env_file:
       - .env
