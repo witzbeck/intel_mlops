@@ -9,8 +9,9 @@ python = "^3.10, <3.12"
 transformers="*"
 datasets="*"
 accelerate="*"
-torch = {version = "*", source = "torch"}
+torch = {version = "^2.2.0, <2.3.0", source = "torch"}
 intel-extension-for-pytorch = {version = "*", source = "ipex"}
+scikit-learn = "*"
 ipykernel = "*"
 
 

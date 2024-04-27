@@ -1,36 +1,22 @@
 # Use an official Python runtime as a parent image
-FROM python:3.11-slim-bookworm
+FROM jupyter/base-notebook:latest
 
 # install dependancies
-RUN apt-get update && apt-get install -y \
-python3-dev \
-build-essential \
-libpq-dev \
-&& rm -rf /var/lib/apt/lists/*
-
-COPY . .
+# RUN apt-get update && apt-get install -y \
+# python3-dev \
+# build-essential \
+# libpq-dev \
+# && rm -rf /var/lib/apt/lists/*
 
 # set PATH
 ENV PATH=/root/.local/bin:$PATH
 
-# Install Jupyter Kernel Gateway
-RUN pip3 install -U --no-cache-dir jupyter_kernel_gateway
+COPY . /home/jovyan/work
 
-RUN pip3 install -U --upgrade pip
+WORKDIR /home/jovyan/work
 
 # Install the required libraries for your notebook
 RUN pip3 install -U --no-cache-dir -e .
 
-# Expose the port used by Kernel Gateway
+# Expose the port used by Kernel
 EXPOSE 8888
-
-# set init args
-ARG JUPYTER_GATEWAY_IP
-ARG JUPYTER_GATEWAY_PORT
-ARG JUPYTER_GATEWAY_API
-ARG JUPYTER_ALLOW_ORIGIN
-ARG JUPYTER_ALLOW_HEADERS
-ARG JUPYTER_ALLOW_METHODS
-
-# Run Jupyter Kernel Gateway
-CMD ["sh", "-c", "jupyter-kernel-gateway --ip=${JUPYTER_GATEWAY_IP} --port=${JUPYTER_GATEWAY_PORT} --KernelGatewayApp.api='${JUPYTER_GATEWAY_API}' --KernelGatewayApp.allow_origin='${JUPYTER_ALLOW_ORIGIN}' --KernelGatewayApp.allow_headers='${JUPYTER_ALLOW_HEADERS}' --KernelGatewayApp.allow_methods='${JUPYTER_ALLOW_METHODS}'"]
