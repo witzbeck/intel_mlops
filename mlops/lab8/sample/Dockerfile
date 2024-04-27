@@ -45,7 +45,4 @@ RUN ls -la && sleep 1
 
 RUN pip3 install --user --no-cache-dir -e ..
 
-# exposing endpoint port
-EXPOSE 5000
-
-ENTRYPOINT ["python", "serve.py"]
+ENTRYPOINT ["python", "run.py"]
