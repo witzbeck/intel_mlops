@@ -5,6 +5,8 @@
 # envs
 .env
 **/.env
+*/.env
+.env
 env/
 venv/
 .venv/*
