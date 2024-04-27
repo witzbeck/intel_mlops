@@ -4,10 +4,12 @@ services:
   fastapi:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: sample/Dockerfile
+      args:
+        - HF_TOKEN
+        - HF_FILE_URL
     volumes:
-      - ./app:/app/app
-      - ./model:/app/model
+      - ./sample:/pickerbot/sample
     ports:
       - "5000:5000"
     env_file:
