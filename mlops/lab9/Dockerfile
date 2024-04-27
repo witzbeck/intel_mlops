@@ -16,10 +16,10 @@ ENV PATH=/root/.local/bin:$PATH
 # Install Jupyter Kernel Gateway
 RUN pip3 install -U --no-cache-dir jupyter_kernel_gateway
 
-RUN pip3 install --upgrade pip
+RUN pip3 install -U --upgrade pip
 
 # Install the required libraries for your notebook
-RUN pip3 install -U --no-cache-dir -r requirements.txt
+RUN pip3 install -U --no-cache-dir -e .
 
 # Expose the port used by Kernel Gateway
 EXPOSE 8888
