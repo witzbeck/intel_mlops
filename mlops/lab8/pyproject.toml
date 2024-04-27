@@ -1,24 +1,26 @@
 [tool.poetry]
-name = "app"
+name = "sample"
 version = "0.2.0"
 description = ""
 authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-# langchain="*"
+langchain="0.1.0"
 transformers="4.39.3"
 datasets="2.18.0"
 tiktoken="0.6.0"
 chromadb="0.4.24"
 sentence_transformers="2.6.1"
 requests = "^2.31.0"
+torch = {version = "*", source = "torch"}
+gpt4all = "*"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [[tool.poetry.source]]
-name = "pytorch"
+name = "torch"
 url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
