@@ -6,12 +6,12 @@ authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-langchain="*"
-transformers="*"
-datasets="*"
-tiktoken="*"
-chromadb="*"
-sentence_transformers="*"
+# langchain="*"
+transformers="4.39.3"
+datasets="2.18.0"
+tiktoken="0.6.0"
+chromadb="0.4.24"
+sentence_transformers="2.6.1"
 requests = "^2.31.0"
 
 [build-system]
