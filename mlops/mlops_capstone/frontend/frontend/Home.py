@@ -1,35 +1,49 @@
-import streamlit as st
+from pathlib import Path
+
 from PIL import Image
+from streamlit import (
+    caption,
+    columns,
+    divider,
+    header,
+    image,
+    markdown,
+    subheader,
+    title,
+)
+
+PROJECT_PATH = Path(__file__).parent.parent
+ASSETS_PATH = PROJECT_PATH / "assets"
 
 
-st.title("The Prototype")
-st.header("Pharmaceutical Manufacturing Business")
-st.markdown("Building a Prototype for the MLOps Certifcation Capstone Project.")
+title("The Prototype")
+header("Pharmaceutical Manufacturing Business")
+markdown("Building a Prototype for the MLOps Certifcation Capstone Project.")
 
-st.divider()
+divider()
 
-col1, col2 = st.columns(2)
+col1, col2 = columns(2)
 
 with col1:
-    st.subheader("Robotics Maintenance")
-    forecasting_image = Image.open("./assets/robot_arm.png")
-    st.image(forecasting_image)
-    st.caption(
+    subheader("Robotics Maintenance")
+    forecasting_image = Image.open(ASSETS_PATH / "robot_arm.png")
+    image(forecasting_image)
+    caption(
         "Computer vision quality inspection tool to flag and remove bad pills from production line"
     )
 
 with col2:
-    st.subheader("Monitoring Dashboard")
-    forecasting_image = Image.open("./assets/stats.png")
-    st.image(forecasting_image)
-    st.caption(
+    subheader("Monitoring Dashboard")
+    forecasting_image = Image.open(ASSETS_PATH / "stats.png")
+    image(forecasting_image)
+    caption(
         "Customer support chatbot based on pre-trained gpt-j large language model"
     )
 
-st.divider()
+divider()
 
-st.markdown("##### Notices & Disclaimers")
-st.caption(
+markdown("##### Notices & Disclaimers")
+caption(
     "Performance varies by use, configuration, and other factors. Learn more on the Performance \
     Index site. Performance results are based on testing as of dates shown in configurations and may not\
         reflect all publicly available updates. See backup for configuration details. No product or component\

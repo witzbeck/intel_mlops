@@ -1,18 +1,13 @@
-FROM public.ecr.aws/docker/library/python:3.8
-
-# copy assets over to image
-COPY /src /robot_maintenance
-
-# set the working directory
-WORKDIR /robot_maintenance
-
-# install dependancies
-RUN pip3 install --user --no-cache-dir -r requirements.txt
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11-slim
 
 # set PATH
-ENV PATH=.local/bin:$PATH
+ENV PATH="/root/.local/bin:${PATH}"
 
-# exposing endpoint port
-EXPOSE 5000
+# copy assets over to image
+COPY . /app
 
-ENTRYPOINT ["python", "serve.py"]
+# set the working directory
+WORKDIR /app
+
+# install dependancies
+RUN pip3 install --user --no-cache-dir -e .

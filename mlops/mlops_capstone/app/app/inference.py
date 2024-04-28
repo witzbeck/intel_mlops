@@ -1,10 +1,12 @@
+""" This module contains the inference function that is used to make predictions on new data samples. 
+"""
+from time import time
+
 import joblib
 import mlflow
 import numpy as np
-import pandas as pd
-import time
-import os
-import datetime
+
+from pandas import get_dummies, concat, DataFrame, merge
 
 
 def inference(
@@ -28,11 +30,11 @@ def inference(
     model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{stage}")
 
     # process data sample
-    Categorical_Variables = pd.get_dummies(
+    Categorical_Variables = get_dummies(
         data[["Manufacturer", "Generation", "Lubrication", "Product_Assignment"]],
         drop_first=False,
     )
-    data = pd.concat([data, Categorical_Variables], axis=1)
+    data = concat([data, Categorical_Variables], axis=1)
     data.drop(
         ["Manufacturer", "Generation", "Lubrication", "Product_Assignment"],
         axis=1,
@@ -43,7 +45,7 @@ def inference(
 
     number_samples = data.select_dtypes(["float", "int", "int32"])
     scaled_samples = robust_scaler.transform(number_samples)
-    scaled_samples_transformed = pd.DataFrame(
+    scaled_samples_transformed = DataFrame(
         scaled_samples, index=number_samples.index, columns=number_samples.columns
     )
     del scaled_samples_transformed["Number_Repairs"]
@@ -51,7 +53,7 @@ def inference(
         ["Age", "Temperature", "Last_Maintenance", "Motor_Current"], axis=1
     )
     data = data.astype(int)
-    processed_sample = pd.concat([scaled_samples_transformed, data], axis=1)
+    processed_sample = concat([scaled_samples_transformed, data], axis=1)
     processed_sample = processed_sample.astype({"Motor_Current": "float64"})
 
     column_names = [
@@ -82,8 +84,8 @@ def inference(
         "Product_Assignment_PillC",
     ]
 
-    zeroes_dataframe = pd.DataFrame(0, index=np.arange(1), columns=column_names)
-    merged_df = pd.merge(
+    zeroes_dataframe = DataFrame(0, index=np.arange(1), columns=column_names)
+    merged_df = merge(
         zeroes_dataframe,
         processed_sample,
         on=processed_sample.columns.tolist(),
@@ -115,10 +117,10 @@ def inference(
 
     merged_df[columns_to_convert] = merged_df[columns_to_convert].astype(int)
 
-    start_time = time.time()
+    start_time = time()
     xgb_prediction = model.predict(merged_df)
-    elapsed_time_milliseconds = (time.time() - start_time) * 1000
-
+    elapsed_time_milliseconds = (time() - start_time) * 1000
+    print(f"Elapsed Time: {elapsed_time_milliseconds} ms")
     for prediction in xgb_prediction:
         if prediction == 0:
             status = "Equipment Does Not Require Scheduled Maintenance"

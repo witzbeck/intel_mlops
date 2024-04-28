@@ -12,18 +12,47 @@ services:
         - MLFLOW_BACKEND_URI
     volumes:
       - ./mlflow:/mlflow
+    ports:
+      - "5000:5000"
     env_file:
       - .env
+    networks:
+      - mlflow_network
   app:
     build:
       context: app
       dockerfile: Dockerfile
+      args:
+        - FASTAPI_PORT
     volumes:
-      - ./app:/app/app
-      - ./model:/app/model
+      - ./app:/app
+      - ./frontend:/frontend
     ports:
       - "80:80"
     env_file:
       - .env
     depends_on:
       - mlflow
+    networks:
+      - mlflow_network
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      args:
+        - STREAMLIT_PORT
+    volumes:
+      - ./frontend:/frontend
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    depends_on:
+      - app
+      - mlflow
+    networks:
+      - mlflow_network
+
+networks:
+  mlflow_network:
+    driver: bridge

@@ -1,12 +1,12 @@
-from streamlit import title, markdown, image, caption, divider
-import requests
-import os
+from pathlib import Path
 from PIL import Image
-import pandas as pd
-import matplotlib.pyplot as plt
+from streamlit import caption, divider, image, markdown, title
+
+PROJECT_PATH = Path(__file__).parent.parent
+ASSETS_PATH = PROJECT_PATH / "assets"
 
 title("Monitoring Dashboard")
-stats_image = Image.open("./assets/stats.png")
+stats_image = Image.open(ASSETS_PATH / "stats.png")
 image(stats_image)
 markdown(
     "###### A simple tool for monitoring the performance of our model. This simple monitoring dashboard will help us track the inference latency and evaluate trends in prediction results."

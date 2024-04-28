@@ -1,18 +1,21 @@
-import uvicorn
-import logging
-import warnings
-import pandas as pd
+"""Main FastAPI Application"""
+from logging import DEBUG, basicConfig, getLogger
+from os import getenv
+from warnings import filterwarnings
 
 from fastapi import FastAPI
-from data_model import TrainPayload, PredictionPayload
-from train import RoboMaintenance
-from inference import inference
+from pandas import json_normalize
+from uvicorn import run
+
+from data_model import PredictionPayload, TrainPayload
+from app.inference import inference
+from app.train import RoboMaintenance
 
 app = FastAPI()
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-warnings.filterwarnings("ignore")
+basicConfig(level=DEBUG)
+logger = getLogger(__name__)
+filterwarnings("ignore")
 
 
 @app.get("/ping")
@@ -61,7 +64,7 @@ async def train(payload: TrainPayload):
 
 @app.post("/predict")
 async def predict(payload: PredictionPayload):
-    sample = pd.json_normalize(payload.sample)
+    sample = json_normalize(payload.sample)
     results = inference(
         model_name=payload.model_name,
         stage=payload.stage,
@@ -74,4 +77,5 @@ async def predict(payload: PredictionPayload):
 
 
 if __name__ == "__main__":
-    uvicorn.run("serve:app", host="0.0.0.0", port=5000, log_level="info")
+    FASTAPI_PORT = int(getenv("FASTAPI_PORT"))
+    run("app:app", host="0.0.0.0", port=FASTAPI_PORT, log_level="info")

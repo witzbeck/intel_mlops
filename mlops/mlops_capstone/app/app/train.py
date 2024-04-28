@@ -1,26 +1,36 @@
 """
 Module to train and prediction using XGBoost Classifier
 """
-
-import sys
-import logging
-import warnings
-import joblib
-import mlflow
-
-import numpy as np
-import xgboost as xgb
-import pandas as pd
-
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import RobustScaler
-
 # !/usr/bin/env python
 # coding: utf-8
 # pylint: disable=import-error
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-warnings.filterwarnings("ignore")
+
+from logging import DEBUG, basicConfig, getLogger
+from sys import exit
+from warnings import filterwarnings
+
+from joblib import dump
+from numpy import array, count_nonzero, ravel
+from pandas import DataFrame, concat, read_pickle
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import RobustScaler
+from xgboost import DMatrix, train
+
+from mlflow import (
+    create_experiment,
+    get_experiment_by_name,
+    log_artifact,
+    log_metric,
+    search_runs,
+    set_experiment,
+    set_tracking_uri,
+    start_run,
+    xgboost,
+)
+
+basicConfig(level=DEBUG)
+logger = getLogger(__name__)
+filterwarnings("ignore")
 
 
 class RoboMaintenance:
@@ -46,15 +56,15 @@ class RoboMaintenance:
         new_experiment: str = None,
     ):
         # sets tracking URI
-        mlflow.set_tracking_uri(tracking_uri)
+        set_tracking_uri(tracking_uri)
 
         # creates new experiment if no experiment is specified
         if experiment is None:
-            mlflow.create_experiment(new_experiment)
+            create_experiment(new_experiment)
             self.active_experiment = new_experiment
-            mlflow.set_experiment(new_experiment)
+            set_experiment(new_experiment)
         else:
-            mlflow.set_experiment(experiment)
+            set_experiment(experiment)
             self.active_experiment = experiment
 
     def process_data(self, file: str, test_size: int = 0.25):
@@ -71,9 +81,9 @@ class RoboMaintenance:
         # Generating our data
         logger.info("Reading the dataset from %s...", file)
         try:
-            data = pd.read_pickle(file)
+            data = read_pickle(file)
         except FileNotFoundError:
-            sys.exit("Dataset file not found")
+            exit("Dataset file not found")
 
         X = data.drop("Asset_Label", axis=1)
         y = data.Asset_Label
@@ -89,10 +99,10 @@ class RoboMaintenance:
         X_test_scaled = self.robust_scaler.transform(df_num_test)
 
         # Making them pandas dataframes
-        X_train_scaled_transformed = pd.DataFrame(
+        X_train_scaled_transformed = DataFrame(
             X_train_scaled, index=df_num_train.index, columns=df_num_train.columns
         )
-        X_test_scaled_transformed = pd.DataFrame(
+        X_test_scaled_transformed = DataFrame(
             X_test_scaled, index=df_num_test.index, columns=df_num_test.columns
         )
 
@@ -112,12 +122,10 @@ class RoboMaintenance:
         X_test = X_test.astype(int)
 
         # Creating train and test data with scaled numerical columns
-        X_train_scaled_transformed = pd.concat(
+        X_train_scaled_transformed = concat(
             [X_train_scaled_transformed, X_train], axis=1
         )
-        X_test_scaled_transformed = pd.concat(
-            [X_test_scaled_transformed, X_test], axis=1
-        )
+        X_test_scaled_transformed = concat([X_test_scaled_transformed, X_test], axis=1)
 
         self.X_train_scaled_transformed = X_train_scaled_transformed.astype(
             {"Motor_Current": "float64"}
@@ -150,15 +158,13 @@ class RoboMaintenance:
             "nthread": ncpu,
         }
 
-        mlflow.xgboost.autolog()
-        xgb_train = xgb.DMatrix(
-            self.X_train_scaled_transformed, label=np.array(self.y_train)
-        )
-        self.xgb_model = xgb.train(self.parameters, xgb_train, num_boost_round=100)
+        xgboost.autolog()
+        xgb_train = DMatrix(self.X_train_scaled_transformed, label=array(self.y_train))
+        self.xgb_model = train(self.parameters, xgb_train, num_boost_round=100)
 
         # store run id for user in other methods
-        xp = mlflow.get_experiment_by_name(self.active_experiment)._experiment_id
-        self.run_id = mlflow.search_runs(xp, output_format="list")[0].info.run_id
+        xp = get_experiment_by_name(self.active_experiment)._experiment_id
+        self.run_id = search_runs(xp, output_format="list")[0].info.run_id
 
     def validate(self):
         """performs model validation with testing data
@@ -170,14 +176,14 @@ class RoboMaintenance:
         """
 
         # calculate accuracy
-        dtest = xgb.DMatrix(self.X_test_scaled_transformed, self.y_test)
+        dtest = DMatrix(self.X_test_scaled_transformed, self.y_test)
         xgb_prediction = self.xgb_model.predict(dtest)
-        xgb_errors_count = np.count_nonzero(xgb_prediction - np.ravel(self.y_test))
+        xgb_errors_count = count_nonzero(xgb_prediction - ravel(self.y_test))
         self.accuracy_scr = 1 - xgb_errors_count / xgb_prediction.shape[0]
 
         # log accuracy metric with mlflow
-        with mlflow.start_run(self.run_id):
-            mlflow.log_metric("accuracy", self.accuracy_scr)
+        with start_run(self.run_id):
+            log_metric("accuracy", self.accuracy_scr)
 
         return self.accuracy_scr
 
@@ -194,8 +200,8 @@ class RoboMaintenance:
 
         logger.info("Saving Scaler")
         with open(self.scaler_path, "wb") as fh:
-            joblib.dump(self.robust_scaler, fh.name)
+            dump(self.robust_scaler, fh.name)
 
         logger.info("Saving Scaler as MLFLow Artifact")
-        with mlflow.start_run(self.run_id):
-            mlflow.log_artifact(self.scaler_path)
+        with start_run(self.run_id):
+            log_artifact(self.scaler_path)
