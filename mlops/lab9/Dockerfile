@@ -17,7 +17,7 @@ COPY requirements.txt /tmp/requirements.txt
 
 # Install the required libraries for your notebook
 RUN pip3 install -U --no-cache-dir -r /tmp/requirements.txt
-RUN pip3 install -U --no-cache-dir -e .
+# RUN pip3 install -U --no-cache-dir -e .
 
 # set PATH
 ENV PATH=/root/.local/bin:$PATH
