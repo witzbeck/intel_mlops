@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   fastapi:
+    container_name: lab8
     build:
       context: .
       dockerfile: sample/Dockerfile
@@ -11,6 +12,7 @@ services:
         - HF_FILE_NAME
     volumes:
       - ./sample:/pickerbot/sample
+    command: ["python", "sample/run.py"]
     ports:
       - "5000:5000"
     env_file:
