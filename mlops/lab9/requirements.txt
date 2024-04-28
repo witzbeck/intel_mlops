@@ -1,14 +1,15 @@
 # Standard dependencies with open version constraints
-transformers
-datasets
-accelerate
-scikit-learn
+transformers==4.40.1
+datasets==2.19.0
+accelerate==0.29.3
+scikit-learn==1.4.2
+ipykernel
 
 # Python version is not specified in requirements.txt, manage environment separately
 
 # Dependency from a specific git repository and branch
 git+https://github.com/witzbeck/intel-extension-for-pytorch.git@feature/enhanced-avx2-checks#egg=intel-extension-for-pytorch
-
+#intel-extension-for-pytorch
 # Torch with a specific version and from a custom source
 torch>=2.2.0,<2.3.0
 --find-links https://download.pytorch.org/whl/cpu

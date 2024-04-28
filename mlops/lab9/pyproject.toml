@@ -9,13 +9,17 @@ python = "^3.10, <3.12"
 transformers="*"
 datasets="*"
 accelerate="*"
+
 intel-extension-for-pytorch = {git = "https://github.com/witzbeck/intel-extension-for-pytorch.git", branch = "feature/enhanced-avx2-checks"}
-torch = {version = "^2.2.0", source = "torch"}
+torch = {version = "^2*+cpu", source = "torch"}
 scikit-learn = "*"
 
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+# [build-system]
+# requires = ["setuptools", "wheel"]
+# build-backend = "setuptools.build_meta"
 
 [[tool.poetry.source]]
 name = "torch"
