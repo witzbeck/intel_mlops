@@ -1,0 +1,3 @@
+[submodule "ipex"]
+	path = ipex
+	url = https://github.com/witzbeck/intel-extension-for-pytorch
