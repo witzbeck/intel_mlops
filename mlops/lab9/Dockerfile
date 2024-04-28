@@ -1,12 +1,16 @@
 # Use an official Python runtime as a parent image
-FROM jupyter/base-notebook:latest
+FROM quay.io/jupyter/base-notebook:latest
 
 # install dependancies
-# RUN apt-get update && apt-get install -y \
-# python3-dev \
-# build-essential \
-# libpq-dev \
-# && rm -rf /var/lib/apt/lists/*
+USER root
+RUN apt-get update && apt-get install -y \
+git git-lfs \
+build-essential \
+libpq-dev \
+python3-dev
+
+RUN apt-get clean && \
+rm -rf /var/lib/apt/lists/*
 
 # set PATH
 ENV PATH=/root/.local/bin:$PATH
