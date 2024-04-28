@@ -15,6 +15,10 @@
 		{
 			"path": "mlops/lab8",
 			"name": "lab"
+		},
+		{
+			"path": "../intel-extension-for-pytorch",
+			"name": "ipex"
 		}
 	],
 	"settings": {
