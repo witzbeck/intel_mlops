@@ -1,17 +1,18 @@
 [tool.poetry]
-name = "capstone"
+name = "app"
 version = "0.1.0"
 description = ""
 authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
-packages = [
-    { include = "app", from = "." },
-    { include = "frontend", from = "." }
-]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-frontend = {path = "frontend"}
-app = {path = "app"}
+uvicorn = "*"
+fastapi = "*"
+pydantic = "*"
+daal4py = "*"
+xgboost = "*"
+scikit-learn-intelex = "*"
+mlflow = "*"
 
 [build-system]
 requires = ["poetry-core"]

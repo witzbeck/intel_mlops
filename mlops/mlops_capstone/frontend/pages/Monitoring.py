@@ -6,8 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 title("Monitoring Dashboard")
-image = Image.open("./assets/stats.png")
-image(image)
+stats_image = Image.open("./assets/stats.png")
+image(stats_image)
 markdown(
     "###### A simple tool for monitoring the performance of our model. This simple monitoring dashboard will help us track the inference latency and evaluate trends in prediction results."
 )
