@@ -9,8 +9,12 @@
 			"name": "tools"
 		},
 		{
-			"path": "mlops/lab7",
+			"path": "mlops/lab9",
 			"name": "lab"
+		},
+		{
+			"path": "../intel-extension-for-pytorch",
+			"name": "ipex"
 		}
 	],
 	"settings": {
