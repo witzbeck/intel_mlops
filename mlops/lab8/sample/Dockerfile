@@ -47,4 +47,4 @@ RUN ls -la && sleep 1
 
 RUN pip3 install --user --no-cache-dir -e ..
 
-ENTRYPOINT ["python", "run.py"]
+# ENTRYPOINT ["python", "run.py"]
