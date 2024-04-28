@@ -5,16 +5,16 @@
 			"name": "root"
 		},
 		{
+			"path": "./ipex",
+			"name": "ipex"
+		},
+		{
 			"path": "labtools",
 			"name": "tools"
 		},
 		{
-			"path": "mlops/lab9",
-			"name": "lab"
-		},
-		{
-			"path": "../intel-extension-for-pytorch",
-			"name": "ipex"
+			"path": "mlops/mlops_capstone",
+			"name": "capstone"
 		}
 	],
 	"settings": {
