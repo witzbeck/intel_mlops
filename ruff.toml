@@ -61,7 +61,7 @@ ignore = ["E501"]
 [lint.isort]
 known-first-party = ["alexlib"]
 known-local-folder = [
-    "labtools", 
+    "labtools",
     "lab1",
     "lab2",
     "lab3",

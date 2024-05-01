@@ -40,11 +40,11 @@
 		"python.testing.pytestPath": "poetry run pytest",
 		"python.testing.unittestEnabled": false,
 		"ruff.format.args": [
-			"--config=/home/abeckwit/repos/intel_mlops/ruff.toml"
+			"--config=/Users/Fr333y3d3a/repos/intel_mlops/ruff.toml"
 		],
 		
 		"ruff.lint.args": [
-			"--config=/home/abeckwit/repos/intel_mlops/ruff.toml"
+			"--config=/Users/Fr333y3d3a/repos/intel_mlops/ruff.toml"
 		],
 		"ruff.codeAction.disableRuleComment": {
 			"enable": false

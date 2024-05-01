@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 # set PATH
 ENV PATH="/root/.local/bin:${PATH}"
@@ -11,3 +11,7 @@ WORKDIR /frontend
 
 # install dependancies
 RUN pip3 install --user --no-cache-dir .
+
+RUN python3 frontend/Home.py
+RUN python3 pages/Monitoring.py
+RUN python3 pages/RoboMaintenance.py

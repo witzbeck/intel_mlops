@@ -2,16 +2,11 @@ version: '3.8'
 
 services:
   mlflow:
-    build:
-      context: mlflow
-      dockerfile: Dockerfile
-      args:
-        - MLFLOW_HOST
-        - MLFLOW_PORT
-        - MLFLOW_ARTIFACT_ROOT
-        - MLFLOW_BACKEND_URI
+    image: ghcr.io/mlflow/mlflow
+    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts --host 0.0.0.0
     volumes:
       - ./mlflow:/mlflow
+      - ./data:/data
     ports:
       - "5000:5000"
     env_file:

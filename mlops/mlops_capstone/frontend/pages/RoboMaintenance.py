@@ -1,6 +1,8 @@
 from pathlib import Path
 
+import streamlit as st
 from PIL import Image
+from requests import post
 from streamlit import (
     code,
     columns,
@@ -72,6 +74,28 @@ with app_tab:
     mlflow_experiment = text_input("Existing Experiment Name", key="existing exp")
 
     # logic for training API connections
+    if st.button("Train Model", key="training"):
+        URL = "http://localhost:80/train"
+        DATA = {
+            "file": data_file,
+            "model_name": model_name,
+            "model_path": model_path,
+            "test_size": test_size,
+            "ncpu": ncpu,
+            "mlflow_tracking_uri": mlflow_tracking_uri,
+            "mlflow_new_experiment": mlflow_new_experiment,
+            "mlflow_experiment": mlflow_experiment,
+        }
+        response = post(URL, json=DATA)
+        if len(response.text) < 40:
+            st.error(f"Model Training Failed: {response.text}")
+            st.info(response.text)
+        else:
+            st.success(f"Model Training Completed: {response.text}")
+            st.info(
+                "Model Validation Accuracy Score: "
+                + str(response.json()["validation_score"])
+            )
 
     divider()
 
