@@ -6,12 +6,14 @@ authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10, <3.12"
-transformers="*"
-datasets="*"
-accelerate="*"
-torch = {version = "^2.2.0, <2.3.0", source = "torch"}
-intel-extension-for-pytorch = {version = "*", source = "ipex"}
+transformers = "*"
+accelerate = "*"
+datasets = "*"
+intel-extension-for-pytorch = { version = "*", source = "ipex" }
+torch = { version = "^2.2.0, <2.3.0", source = "torch" }
 scikit-learn = "*"
+
+[tool.poetry.dev-dependencies]
 ipykernel = "*"
 
 
