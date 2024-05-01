@@ -17,14 +17,3 @@ mlflow = "*"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[[tool.poetry.source]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cpu"
-priority = "explicit"
-
-[[tool.poetry.source]]
-name = "intel-pytorch-extension"
-url = "https://pytorch-extension.intel.com/release-whl/stable/cpu/us/"
-priority = "explicit"
-

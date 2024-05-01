@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from pandas import json_normalize
 from uvicorn import run
 
-from data_model import PredictionPayload, TrainPayload
+from app.data_model import PredictionPayload, TrainPayload
 from app.inference import inference
 from app.train import RoboMaintenance
 

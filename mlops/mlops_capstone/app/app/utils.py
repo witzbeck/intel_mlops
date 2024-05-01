@@ -16,7 +16,7 @@ from numpy import where
 from numpy.random import choice, normal, randint, seed
 from pandas import DataFrame, concat, get_dummies
 
-from __init__ import robot_dataset
+from app.__init__ import robot_dataset
 
 basicConfig(level=DEBUG)
 logger = getLogger(__name__)
@@ -124,7 +124,7 @@ def generate_data(
     etime = time() - start
     datasize = data.shape
     logger.info(
-        f"=====> Time taken {etime:2f} secs for data generation for the size of {datasize:,}"
+        f"=====> Time taken {etime:2f} secs for data generation for the size of {datasize}"
     )
 
     # save data to pickle file
