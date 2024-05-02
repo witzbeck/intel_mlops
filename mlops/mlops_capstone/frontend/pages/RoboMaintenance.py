@@ -1,3 +1,4 @@
+from os import getenv
 from pathlib import Path
 
 import streamlit as st
@@ -19,6 +20,10 @@ from streamlit import (
 
 PROJECT_PATH = Path(__file__).parent.parent
 ASSETS_PATH = PROJECT_PATH / "assets"
+STORE_PATH = PROJECT_PATH / "store"
+OUTPUTS_PATH = STORE_PATH / "outputs"
+TRAINING_DATA_PATH = STORE_PATH / "datasets/robot_maintenance/train.pkl"
+tracking_uri = getenv("MLFLOW_TRACKING_URI")
 
 
 title("Robotics Predictive Maintenance")
@@ -68,7 +73,7 @@ with app_tab:
     mlflow_tracking_uri = text_input(
         "Tracking URI",
         key="uri",
-        value="/home/ubuntu/certified-developer/MLOps_Professional/mlops_capstone/store/models/robot_maintenance",
+        value=STORE_PATH / "models/robot_maintenance",
     )
     mlflow_new_experiment = text_input("New Experiment Name", key="new exp")
     mlflow_experiment = text_input("Existing Experiment Name", key="existing exp")

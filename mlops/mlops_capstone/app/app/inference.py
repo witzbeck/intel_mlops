@@ -1,5 +1,6 @@
 """ This module contains the inference function that is used to make predictions on new data samples. 
 """
+from pathlib import Path
 from time import time
 
 import joblib
@@ -7,6 +8,10 @@ import mlflow
 import numpy as np
 
 from pandas import get_dummies, concat, DataFrame, merge
+
+PROJECT_PATH = Path(__file__).parent.parent
+STORE_PATH = PROJECT_PATH / "store"
+OUTPUTS_PATH = STORE_PATH / "outputs"
 
 
 def inference(
@@ -128,5 +133,6 @@ def inference(
             status = "Equipment Requires Scheduled Maintenance - Plan Accordingly"
 
     # logic for monitoring log file creation
+
 
     return status

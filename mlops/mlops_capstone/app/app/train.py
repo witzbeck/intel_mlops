@@ -6,16 +6,12 @@ Module to train and prediction using XGBoost Classifier
 # pylint: disable=import-error
 
 from logging import DEBUG, basicConfig, getLogger
+from os import getenv
+from pathlib import Path
 from sys import exit
 from warnings import filterwarnings
 
 from joblib import dump
-from numpy import array, count_nonzero, ravel
-from pandas import DataFrame, concat, read_pickle
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import RobustScaler
-from xgboost import DMatrix, train
-
 from mlflow import (
     create_experiment,
     get_experiment_by_name,
@@ -27,6 +23,16 @@ from mlflow import (
     start_run,
     xgboost,
 )
+from numpy import array, count_nonzero, ravel
+from pandas import DataFrame, concat, read_pickle
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import RobustScaler
+from xgboost import DMatrix, train
+
+STORE_PATH = "/app/store"
+OUTPUTS_PATH = STORE_PATH / "outputs"
+TRAINING_DATA_PATH = STORE_PATH / "datasets/robot_maintenance/train.pkl"
+tracking_uri = getenv("MLFLOW_TRACKING_URI")
 
 basicConfig(level=DEBUG)
 logger = getLogger(__name__)
@@ -36,22 +42,22 @@ filterwarnings("ignore")
 class RoboMaintenance:
     def __init__(self, model_name: str):
         self.model_name = model_name
-        self.file = ""
-        self.y_train = ""
-        self.y_test = ""
-        self.X_train_scaled_transformed = ""
-        self.X_test_scaled_transformed = ""
-        self.accuracy_scr = ""
-        self.model_path = ""
-        self.parameters = ""
-        self.robust_scaler = ""
-        self.run_id = ""
-        self.active_experiment = ""
-        self.xgb_model = ""
+        self.file = None
+        self.y_train = None
+        self.y_test = None
+        self.X_train_scaled_transformed = None
+        self.X_test_scaled_transformed = None
+        self.accuracy_scr = None
+        self.model_path = None
+        self.parameters = None
+        self.robust_scaler = None
+        self.run_id = None
+        self.active_experiment = None
+        self.xgb_model = None
 
     def mlflow_tracking(
         self,
-        tracking_uri: str = "./mlflow_tracking",
+        tracking_uri: str = tracking_uri,
         experiment: str = None,
         new_experiment: str = None,
     ):

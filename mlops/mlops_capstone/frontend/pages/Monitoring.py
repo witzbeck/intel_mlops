@@ -3,6 +3,12 @@ from PIL import Image
 from streamlit import caption, divider, image, markdown, title
 
 PROJECT_PATH = Path(__file__).parent.parent
+STORE_PATH = PROJECT_PATH / "store"
+OUTPUTS_PATH = STORE_PATH / "outputs"
+TRAINING_DATA_PATH = STORE_PATH / "datasets/robot_maintenance/train.pkl"
+tracking_uri = getenv("MLFLOW_TRACKING_URI")
+
+PROJECT_PATH = Path(__file__).parent.parent
 ASSETS_PATH = PROJECT_PATH / "assets"
 
 title("Monitoring Dashboard")

@@ -12,7 +12,7 @@ from streamlit import (
     title,
 )
 
-PROJECT_PATH = Path(__file__).parent.parent
+PROJECT_PATH = Path(__file__).parent
 ASSETS_PATH = PROJECT_PATH / "assets"
 
 
@@ -52,3 +52,7 @@ caption(
                     Intel marks are trademarks of Intel Corporation or its subsidiaries. Other names and brands may\
                         be claimed as the property of others."
 )
+
+
+if __name__ == "__main__":
+    print("Frontend: Home Page Loaded.")

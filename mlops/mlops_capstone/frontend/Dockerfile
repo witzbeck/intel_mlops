@@ -11,7 +11,3 @@ WORKDIR /frontend
 
 # install dependancies
 RUN pip3 install --user --no-cache-dir .
-
-RUN python3 frontend/Home.py
-RUN python3 pages/Monitoring.py
-RUN python3 pages/RoboMaintenance.py
