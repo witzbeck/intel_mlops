@@ -1,4 +1,4 @@
-
+"""This page is the main interface for uploading and extracting output for the end user."""
 import streamlit as st
 from PIL import Image
 from requests import post
@@ -17,7 +17,6 @@ from streamlit import (
 )
 
 from constants import ASSETS_PATH, STORE_PATH, TRAINING_DATA_PATH
-
 
 title("Robotics Predictive Maintenance")
 

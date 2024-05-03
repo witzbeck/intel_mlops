@@ -29,7 +29,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler
 from xgboost import DMatrix, train
 
-STORE_PATH = "/app/store"
+STORE_PATH = Path("/app/store")
 OUTPUTS_PATH = STORE_PATH / "outputs"
 TRAINING_DATA_PATH = STORE_PATH / "datasets/robot_maintenance/train.pkl"
 tracking_uri = getenv("MLFLOW_TRACKING_URI")

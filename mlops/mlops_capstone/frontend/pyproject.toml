@@ -5,7 +5,7 @@ description = "the frontend application of the project"
 authors = ["Alex Beckwith <57322567+witzbeck@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 pandas = "*"
 streamlit = "*"
 Pillow = "*"

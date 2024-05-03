@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from PIL import Image
 from streamlit import (
     caption,
@@ -12,12 +10,11 @@ from streamlit import (
     title,
 )
 
-PROJECT_PATH = Path(__file__).parent
-ASSETS_PATH = PROJECT_PATH / "assets"
+from frontend.constants import ASSETS_PATH
 
 
-title("The Prototype")
-header("Pharmaceutical Manufacturing Business")
+title("Form Recognition & Document Extraction")
+header("Insurance Carrier")
 markdown("Building a Prototype for the MLOps Certifcation Capstone Project.")
 
 divider()
@@ -29,7 +26,7 @@ with col1:
     forecasting_image = Image.open(ASSETS_PATH / "robot_arm.png")
     image(forecasting_image)
     caption(
-        "Computer vision quality inspection tool to flag and remove bad pills from production line"
+        "Computer vision form recognition and document extraction using pre-trained models."
     )
 
 with col2:
@@ -37,21 +34,23 @@ with col2:
     forecasting_image = Image.open(ASSETS_PATH / "stats.png")
     image(forecasting_image)
     caption(
-        "Customer support chatbot based on pre-trained gpt-j large language model"
+        "Customer support chatbot based on pre-trained Phi-3 large language model"
     )
 
 divider()
 
 markdown("##### Notices & Disclaimers")
-caption(
-    "Performance varies by use, configuration, and other factors. Learn more on the Performance \
-    Index site. Performance results are based on testing as of dates shown in configurations and may not\
-        reflect all publicly available updates. See backup for configuration details. No product or component\
-            can be absolutely secure. Your costs and results may vary. Intel technologies may require enabled\
-                hardware, software, or service activation. © Intel Corporation. Intel, the Intel logo, and other\
-                    Intel marks are trademarks of Intel Corporation or its subsidiaries. Other names and brands may\
-                        be claimed as the property of others."
-)
+caption("""
+        Performance varies by use, configuration, and other factors. 
+        Learn more on the Performance Index site. 
+        Performance results are based on testing as of dates 
+        shown in configurations and may not reflect all publicly available updates.
+        See backup for configuration details. No product or component can be absolutely secure.
+        Your costs and results may vary. Intel technologies may require enabled hardware, software, or service activation.
+        © Intel Corporation. Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries.
+        Other names and brands may be claimed as the property of others.
+        """)
+divider()
 
 
 if __name__ == "__main__":
